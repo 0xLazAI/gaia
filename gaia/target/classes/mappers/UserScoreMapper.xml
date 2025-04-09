@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.UserScoreMapper">
+    <sql id="Base_Column_List">
+        id, user_id, content, created_at, updated_at
+    </sql>
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            created_at,
+            updated_at,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+
+
+    <sql id="updateBasic">
+        <set>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.UserScore">
+        insert into user_score
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateById" parameterType="com.lazai.entity.UserScore">
+        update user_score
+        <include refid="updateBasic"/>
+        where id = #{id}
+    </update>
+
+</mapper>

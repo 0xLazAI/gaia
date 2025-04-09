@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.TaskTemplateMapper">
+    <sql id="Base_Column_List">
+        id, template_code, template_name, status, creator, operator, app, content, created_at, updated_at, process_type
+    </sql>
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="templateCode != null">
+                template_code,
+            </if>
+            <if test="templateName != null">
+                template_name,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="app != null">
+                app,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="processType != null">
+                process_type,
+            </if>
+            created_at,
+            updated_at,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="templateCode != null">
+                #{templateCode},
+            </if>
+            <if test="templateName != null">
+                #{templateName},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="creator != null">
+                #{creator},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="app != null">
+                #{app},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            <if test="processType != null">
+                #{processType},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+    <sql id="updateBasic">
+        <set>
+            <if test="templateCode != null">
+                template_code=#{templateCode},
+            </if>
+            <if test="templateName != null">
+                template_name=#{templateName},
+            </if>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            <if test="creator != null">
+                creator=#{creator},
+            </if>
+            <if test="operator != null">
+                operator=#{operator},
+            </if>
+            <if test="app != null">
+                app=#{app},
+            </if>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.TaskTemplate">
+        insert into task_template
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateByCode" parameterType="com.lazai.entity.TaskTemplate">
+        update task_template
+        <include refid="updateBasic"/>
+        where template_code = #{templateCode}
+    </update>
+
+
+    <select id="queryList" resultType="com.lazai.entity.TaskTemplate">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from task_template
+        <where>
+            status = #{status}
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="templateCode != null">
+                AND template_code = #{templateCode}
+            </if>
+            <if test="templateName != null">
+                AND template_name = #{templateName}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="processType != null">
+                AND process_type = #{processType}
+            </if>
+        </where>
+        ORDER BY created_at desc
+    </select>
+
+    <select id="pageQueryList" resultType="com.lazai.entity.TaskTemplate">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from task_template
+        <where>
+            status = #{status}
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="templateCode != null">
+                AND template_code = #{templateCode}
+            </if>
+            <if test="templateName != null">
+                AND template_name = #{templateName}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="processType != null">
+                AND process_type = #{processType}
+            </if>
+        </where>
+        ORDER BY created_at desc
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="queryListCnt" resultType="java.lang.Integer">
+        SELECT
+        count(id)
+        from task_template
+        <where>
+            status = #{status}
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="templateCode != null">
+                AND template_code = #{templateCode}
+            </if>
+            <if test="templateName != null">
+                AND template_name = #{templateName}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="processType != null">
+                AND process_type = #{processType}
+            </if>
+        </where>
+    </select>
+
+</mapper>

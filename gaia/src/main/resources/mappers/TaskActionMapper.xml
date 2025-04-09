@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.TaskActionMapper">
+    <sql id="Base_Column_List">
+        id, action_name, biz_no, biz_type, status, run_type, action_handler, operator, creator, created_at, updated_at, user, content
+    </sql>
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="actionName != null">
+                action_name,
+            </if>
+            <if test="bizNo != null">
+                biz_no,
+            </if>
+            <if test="bizType != null">
+                biz_type,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="runType != null">
+                run_type,
+            </if>
+            <if test="actionHandler != null">
+                action_handler,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="user != null">
+                user,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            created_at,
+            updated_at,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="actionName != null">
+                #{actionName},
+            </if>
+            <if test="bizNo != null">
+                #{bizNo},
+            </if>
+            <if test="bizType != null">
+                #{bizType},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="runType != null">
+                #{runType},
+            </if>
+            <if test="actionHandler != null">
+                #{actionHandler},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="creator != null">
+                #{creator},
+            </if>
+            <if test="user != null">
+                #{user},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+
+
+    <sql id="updateBasic">
+        <set>
+            <if test="actionName != null">
+                action_name=#{actionName},
+            </if>
+            <if test="bizNo != null">
+                biz_no=#{bizNo},
+            </if>
+            <if test="bizType != null">
+                biz_type=#{bizType},
+            </if>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            <if test="runType != null">
+                run_type=#{runType},
+            </if>
+            <if test="actionHandler != null">
+                action_handler=#{actionHandler},
+            </if>
+            <if test="operator != null">
+                operator=#{operator},
+            </if>
+            <if test="creator != null">
+                creator=#{creator},
+            </if>
+            <if test="user != null">
+                user=#{user},
+            </if>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.UserScore">
+        insert into task_actions
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateById" parameterType="com.lazai.entity.UserScore">
+        update task_actions
+        <include refid="updateBasic"/>
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.TaskRecordMapper">
+    <sql id="Base_Column_List">
+        id, task_no, task_template_id, content, context, creator, operator, version, created_at, updated_at, status, inner_user, outer_user, app
+    </sql>
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskNo != null">
+                task_no,
+            </if>
+            <if test="taskTemplateId != null">
+                task_template_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="context != null">
+                context,
+            </if>
+            <if test="creator != null">
+                creator,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="version != null">
+                version,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="innerUser != null">
+                inner_user,
+            </if>
+            <if test="outerUser != null">
+                outer_user,
+            </if>
+            <if test="app != null">
+                app,
+            </if>
+            created_at,
+            updated_at,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskNo != null">
+                #{taskNo},
+            </if>
+            <if test="taskTemplateId != null">
+                #{taskTemplateId},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            <if test="context != null">
+                #{context},
+            </if>
+            <if test="creator != null">
+                #{creator},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="version != null">
+                #{version},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="innerUser != null">
+                #{innerUser},
+            </if>
+            <if test="outerUser != null">
+                #{outerUser},
+            </if>
+            <if test="app != null">
+                #{app},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+    <sql id="updateBasic">
+        <set>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            <if test="context != null">
+                context=#{context},
+            </if>
+            <if test="creator != null">
+                creator=#{creator},
+            </if>
+            <if test="operator != null">
+                operator=#{operator},
+            </if>
+            <if test="version != null">
+                version=#{version},
+            </if>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.TaskRecord">
+        insert into task_record
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateByTaskNo" parameterType="com.lazai.entity.TaskRecord">
+        update task_record
+        <include refid="updateBasic"/>
+        where task_no = #{taskNo}
+    </update>
+
+
+    <select id="queryList" resultType="com.lazai.entity.TaskRecord">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from task_record
+        <where>
+            <if test="statusList != null">
+                status IN
+                <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="taskNos != null">
+                AND task_no IN
+                <foreach collection="taskNos" item="taskNo" open="(" separator="," close=")">
+                    #{taskNo}
+                </foreach>
+            </if>
+            <if test="taskTemplateIds != null">
+                AND task_template_id IN
+                <foreach collection="taskTemplateIds" item="taskTemplateId" open="(" separator="," close=")">
+                    #{taskTemplateId}
+                </foreach>
+            </if>
+            <if test="taskTemplateId != null">
+                AND task_template_id = #{taskTemplateId}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="innerUser != null">
+                AND inner_user = #{innerUser}
+            </if>
+            <if test="outerUser != null">
+                AND outer_user = #{outerUser}
+            </if>
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="createdStart != null">
+                AND created_at &gt;= #{createdStart}
+            </if>
+            <if test="createdEnd != null">
+                AND created_at &lt;= #{createdEnd}
+            </if>
+        </where>
+        ORDER BY created_at desc
+    </select>
+
+    <select id="pageQueryList" resultType="com.lazai.entity.TaskRecord">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from task_record
+        <where>
+            status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+            <if test="taskNos != null">
+                AND task_no IN
+                <foreach collection="taskNos" item="taskNo" open="(" separator="," close=")">
+                    #{taskNo}
+                </foreach>
+            </if>
+            <if test="taskTemplateIds != null">
+                AND task_template_id IN
+                <foreach collection="taskTemplateIds" item="taskTemplateId" open="(" separator="," close=")">
+                    #{taskTemplateId}
+                </foreach>
+            </if>
+            <if test="taskTemplateId != null">
+                AND task_template_id = #{taskTemplateId}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="innerUser != null">
+                AND inner_user = #{innerUser}
+            </if>
+            <if test="outerUser != null">
+                AND outer_user = #{outerUser}
+            </if>
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="createdStart != null">
+                AND created_at &gt;= #{createdStart}
+            </if>
+            <if test="createdEnd != null">
+                AND created_at &lt;= #{createdEnd}
+            </if>
+        </where>
+        ORDER BY created_at desc
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="queryListCnt" resultType="java.lang.Integer">
+        SELECT
+        count(id)
+        from task_record
+        <where>
+            status IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+            <if test="taskNos != null">
+                AND task_no IN
+                <foreach collection="taskNos" item="taskNo" open="(" separator="," close=")">
+                    #{taskNo}
+                </foreach>
+            </if>
+            <if test="taskTemplateIds != null">
+                AND task_template_id IN
+                <foreach collection="taskTemplateIds" item="taskTemplateId" open="(" separator="," close=")">
+                    #{taskTemplateId}
+                </foreach>
+            </if>
+            <if test="taskTemplateId != null">
+                AND task_template_id = #{taskTemplateId}
+            </if>
+            <if test="creator != null">
+                AND creator = #{creator}
+            </if>
+            <if test="innerUser != null">
+                AND inner_user = #{innerUser}
+            </if>
+            <if test="outerUser != null">
+                AND outer_user = #{outerUser}
+            </if>
+            <if test="app != null">
+                AND app = #{app}
+            </if>
+            <if test="createdStart != null">
+                AND created_at &gt;= #{createdStart}
+            </if>
+            <if test="createdEnd != null">
+                AND created_at &lt;= #{createdEnd}
+            </if>
+        </where>
+    </select>
+
+</mapper>

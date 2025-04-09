@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.ScoreBalanceMapper">
+    <sql id="Base_Column_List">
+        id, score, user_id, score_type, direction, biz_type, biz_id, content, created_at, updated_at
+    </sql>
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="score != null">
+                score,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="scoreType != null">
+                score_type,
+            </if>
+            <if test="direction != null">
+                direction,
+            </if>
+            <if test="bizType != null">
+                biz_type,
+            </if>
+            <if test="bizId != null">
+                biz_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            created_at,
+            updated_at,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="score != null">
+                #{score},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="scoreType != null">
+                #{scoreType},
+            </if>
+            <if test="direction != null">
+                #{direction},
+            </if>
+            <if test="bizType != null">
+                #{bizType},
+            </if>
+            <if test="bizId != null">
+                #{bizId},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+
+
+    <sql id="updateBasic">
+        <set>
+            <if test="score != null">
+                score=#{score},
+            </if>
+            <if test="scoreType != null">
+                score_type=#{scoreType},
+            </if>
+            <if test="direction != null">
+                direction=#{direction},
+            </if>
+            <if test="bizType != null">
+                biz_type=#{bizType},
+            </if>
+            <if test="bizId != null">
+                biz_id=#{bizId},
+            </if>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.ScoreBalance">
+        insert into score_balance
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateById" parameterType="com.lazai.entity.ScoreBalance">
+        update score_balance
+        <include refid="updateBasic"/>
+        where id = #{id}
+    </update>
+
+    <select id="queryList" resultType="com.lazai.entity.ScoreBalance">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from score_balance
+        <where>
+
+            <if test="bizIds != null">
+                AND biz_id IN
+                <foreach collection="bizIds" item="bizId" open="(" separator="," close=")">
+                    #{bizId}
+                </foreach>
+            </if>
+            <if test="scoreTypes != null">
+                AND score_type IN
+                <foreach collection="scoreTypes" item="scoreType" open="(" separator="," close=")">
+                    #{scoreType}
+                </foreach>
+            </if>
+            <if test="bizId != null">
+                AND biz_id = #{bizId}
+            </if>
+            <if test="bizType != null">
+                AND biz_type = #{bizType}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="direction != null">
+                AND direction = #{direction}
+            </if>
+        </where>
+        ORDER BY id desc
+    </select>
+
+
+    <select id="pageQueryList" resultType="com.lazai.entity.ScoreBalance">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from score_balance
+        <where>
+
+            <if test="bizIds != null">
+                AND biz_id IN
+                <foreach collection="bizIds" item="bizId" open="(" separator="," close=")">
+                    #{bizId}
+                </foreach>
+            </if>
+            <if test="scoreTypes != null">
+                AND score_type IN
+                <foreach collection="scoreTypes" item="scoreType" open="(" separator="," close=")">
+                    #{scoreType}
+                </foreach>
+            </if>
+            <if test="bizId != null">
+                AND biz_id = #{bizId}
+            </if>
+            <if test="bizType != null">
+                AND biz_type = #{bizType}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="direction != null">
+                AND direction = #{direction}
+            </if>
+        </where>
+        ORDER BY id desc
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="queryListCnt" resultType="java.lang.Integer">
+        SELECT
+        count(id)
+        from score_balance
+        <where>
+
+            <if test="bizIds != null">
+                AND biz_id IN
+                <foreach collection="bizIds" item="bizId" open="(" separator="," close=")">
+                    #{bizId}
+                </foreach>
+            </if>
+            <if test="scoreTypes != null">
+                AND score_type IN
+                <foreach collection="scoreTypes" item="scoreType" open="(" separator="," close=")">
+                    #{scoreType}
+                </foreach>
+            </if>
+            <if test="bizId != null">
+                AND biz_id = #{bizId}
+            </if>
+            <if test="bizType != null">
+                AND biz_type = #{bizType}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="direction != null">
+                AND direction = #{direction}
+            </if>
+        </where>
+        ORDER BY id desc
+    </select>
+
+</mapper>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lazai.mapper.UserMapper">
+<!--    <resultMap id="BaseResultMap" type="com.lazai.entity.User">-->
+<!--        <result column="eth_address" property="ethAddress"/>-->
+<!--        <result column="tg_id" property="tgId"/>-->
+<!--        <result column="x_id" property="xId"/>-->
+<!--        <result column="created_at" property="createdAt"/>-->
+<!--        <result column="updated_at" property="updatedAt"/>-->
+<!--    </resultMap>-->
+    <sql id="Base_Column_List">
+        id, eth_address, tg_id, x_id, created_at, updated_at, status, content, name
+    </sql>
+
+<!--    <select id="selectUserFiles" resultType="org.cell.lazai.entity.dto.FileInfo">-->
+<!--        select id,-->
+<!--        user_id          as userId,-->
+<!--        file_id          as fileId,-->
+<!--        relate_id        as relateId,-->
+<!--        file_name        as fileName,-->
+<!--        file_size        as fileSize,-->
+<!--        file_url         as fileUrl,-->
+<!--        face_url         as faceUrl,-->
+<!--        file_expire_time as fileExpireTime,-->
+<!--        file_type        as fileType,-->
+<!--        is_del           as isDel,-->
+<!--        created_at       as createdAt,-->
+<!--        updated_at       as updatedAt-->
+<!--        from file_info-->
+<!--        where user_id = #{userId,jdbcType=BIGINT}-->
+<!--        AND is_del = 0-->
+<!--        order by created_at desc-->
+<!--        LIMIT #{startIndex, jdbcType=INTEGER}, #{pageSize, jdbcType=INTEGER}-->
+<!--    </select>-->
+<!--    <select id="selectUserFileById" resultType="org.cell.lazai.entity.dto.FileInfo">-->
+<!--        select id,-->
+<!--        user_id          as userId,-->
+<!--        file_id          as fileId,-->
+<!--        relate_id        as relateId,-->
+<!--        file_name        as fileName,-->
+<!--        file_size        as fileSize,-->
+<!--        file_url         as fileUrl,-->
+<!--        face_url         as faceUrl,-->
+<!--        file_expire_time as fileExpireTime,-->
+<!--        file_type        as fileType,-->
+<!--        is_del           as isDel,-->
+<!--        created_at       as createdAt,-->
+<!--        updated_at       as updatedAt-->
+<!--        from file_info-->
+<!--        where file_id = #{fileId,jdbcType=VARCHAR}-->
+<!--        AND user_id = #{userId,jdbcType=BIGINT}-->
+<!--        AND is_del = 0-->
+<!--    </select>-->
+
+
+    <sql id="insertBasic">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                name,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="ethAddress != null">
+                eth_address,
+            </if>
+            <if test="tgId != null">
+                tg_id,
+            </if>
+            <if test="xId != null">
+                x_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="createdAt != null">
+                created_at,
+            </if>
+            <if test="updatedAt != null">
+                updated_at,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="ethAddress != null">
+                #{ethAddress},
+            </if>
+            <if test="tgId != null">
+                #{tgId},
+            </if>
+            <if test="xId != null">
+                #{xId},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            #{createdAt},
+            #{updatedAt},
+        </trim>
+    </sql>
+
+
+    
+    <sql id="updateBasic">
+        <set>
+            <if test="name != null">
+                name=#{name},
+            </if>
+            <if test="status != null">
+                status=#{status},
+            </if>
+            <if test="tgId != null">
+                tg_id=#{tgId},
+            </if>
+            <if test="xId != null">
+                x_id=#{xId},
+            </if>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            updated_at=#{updatedAt},
+        </set>
+    </sql>
+
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.lazai.entity.User">
+        insert into user
+        <include refid="insertBasic"/>
+    </insert>
+
+    <update id="updateById" parameterType="com.lazai.entity.User">
+        update user
+        <include refid="updateBasic"/>
+        where id = #{id}
+    </update>
+    <update id="updateByEthAddress" parameterType="com.lazai.entity.User">
+        update user
+        <include refid="updateBasic"/>
+        where eth_address = #{ethAddress}
+    </update>
+
+<!--    <select id="selectByEthAddress" resultType="com.lazai.entity.User">-->
+<!--            select-->
+<!--            <include refid="Base_Column_List"/>-->
+<!--            from user-->
+<!--            where eth_address = #{ethAddress}-->
+<!--    </select>-->
+</mapper>
