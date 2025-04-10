@@ -11,7 +11,17 @@ public class UserLoginByTgRequest extends BasicRequest {
 
     private Boolean force = false;
 
+    private String tgUserInfoStr;
+
     private JSONObject tgUserInfo;
+
+    public String getTgUserInfoStr() {
+        return tgUserInfoStr;
+    }
+
+    public void setTgUserInfoStr(String tgUserInfoStr) {
+        this.tgUserInfoStr = tgUserInfoStr;
+    }
 
     public Boolean getForce() {
         return force;

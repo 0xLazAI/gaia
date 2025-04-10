@@ -37,7 +37,6 @@ public class TwitterWebhookController {
         JSONObject me = twitterService.getMe(tokenResult.getString("access_token"));
         User user = JWTUtils.getUser();
         RedisUtils.set("twitter_bearer_token_" + user.getId(), tokenResult.getString("access_token"));
-        //TODO bind twitter user To local user
         user.setxId(me.getJSONObject("data").getString("id"));
         JSONObject userContent = JSON.parseObject(user.getContent());
         userContent.put("twitterUserInfo", me.getJSONObject("data"));

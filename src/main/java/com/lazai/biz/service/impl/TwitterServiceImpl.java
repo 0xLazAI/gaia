@@ -12,7 +12,10 @@ import com.lazai.entity.dto.TaskRecordQueryParam;
 import com.lazai.enums.TaskStatusEnum;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.TaskRecordRepository;
+import com.lazai.repostories.UserRepository;
+import com.lazai.request.BindTwitterUserInfoRequest;
 import com.lazai.request.TaskCreateRequest;
+import com.lazai.utils.JWTUtils;
 import com.lazai.utils.RedisUtils;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.user.UserList;
@@ -52,6 +55,9 @@ public class TwitterServiceImpl implements TwitterService {
 
     @Autowired
     private RestTemplate twitterRestTemplate;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private TaskService taskService;
@@ -193,7 +199,18 @@ public class TwitterServiceImpl implements TwitterService {
                 //TODO Trigger task
             }
         }
+    }
 
+    public void bindTwitterUserInfo(BindTwitterUserInfoRequest request){
+        JSONObject tokenResult = getTokenByCode(request.getCode());
+        JSONObject me = getMe(tokenResult.getString("access_token"));
+        User user = JWTUtils.getUser();
+        RedisUtils.set("twitter_bearer_token_" + user.getId(), tokenResult.getString("access_token"));
+        user.setxId(me.getJSONObject("data").getString("id"));
+        JSONObject userContent = JSON.parseObject(user.getContent());
+        userContent.put("twitterUserInfo", me.getJSONObject("data"));
+        user.setContent(JSON.toJSONString(userContent));
+        userRepository.updateById(user);
     }
 
 }

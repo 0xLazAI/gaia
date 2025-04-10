@@ -1,5 +1,17 @@
 type Query{
     getUserDetail(id: String): UserVo
+
+    getNonce(address: String): String
+}
+
+type Mutation{
+    loginWithTg(req: LoginWithTgReq!) : LoginResult
+
+    bindTwitterUserInfo(req: BindTwitterUserInfoRequest!): Boolean
+
+    bindEthAddress(req: BindEthAddressRequest!): Boolean
+
+
 }
 
 
@@ -13,4 +25,30 @@ type UserVo {
     name: String
     # user status
     status: String
+}
+
+type LoginResult{
+    userId: String
+    token:String
+}
+
+input LoginWithTgReq {
+    # style id
+    tgId: String!
+    # is public
+    tgUserInfoStr: String
+}
+
+input BindTwitterUserInfoRequest {
+    # style id
+    code: String!
+    # is public
+    status: String
+}
+
+input BindEthAddressRequest {
+    # style id
+    ethAddress: String!
+
+    signature: String!
 }

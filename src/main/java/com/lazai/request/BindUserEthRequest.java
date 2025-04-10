@@ -11,6 +11,16 @@ public class BindUserEthRequest extends BasicRequest {
 
     private String userId;
 
+    private String signature;
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     public String getEthAddress() {
         return ethAddress;
     }

@@ -76,6 +76,8 @@ public class UserController {
     public JsonApiResponse<Object> getNonce(@RequestParam String address, HttpServletRequest request){
         return JsonApiResponse.success(userService.getNonce(address));
     }
+
+
     @GetMapping("/getById")
     @ResultLog(name = "UserController.getById", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> getById(@RequestParam String id, HttpServletRequest request){

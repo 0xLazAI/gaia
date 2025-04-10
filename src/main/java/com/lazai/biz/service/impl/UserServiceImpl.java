@@ -6,18 +6,17 @@ import com.lazai.biz.service.UserService;
 import com.lazai.entity.User;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.UserRepository;
-import com.lazai.request.BindUserEthRequest;
-import com.lazai.request.LoginRequest;
-import com.lazai.request.UserCreateRequest;
-import com.lazai.request.UserLoginByTgRequest;
+import com.lazai.request.*;
 import com.lazai.utils.EthereumAuthUtils;
 import com.lazai.utils.JWTUtils;
 import com.lazai.utils.RedisUtils;
+import com.lazai.utils.UrlParserUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -52,15 +51,15 @@ public class UserServiceImpl implements UserService {
     public JSONObject createAndLoginByTgInfo(UserLoginByTgRequest userLoginByTgRequest){
         JSONObject result = new JSONObject();
         User user = userRepository.findByTgId(userLoginByTgRequest.getTgId());
-        JSONObject tgUserInfo = userLoginByTgRequest.getTgUserInfo();
+        Map<String, String> tgUserInfo = UrlParserUtils.parse(userLoginByTgRequest.getTgUserInfoStr());
         if(user == null){
             user = new User();
             user.setStatus("active");
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("tgUserInfo", JSONObject.toJSONString(tgUserInfo));
+            jsonObject.put("tgUserInfo", tgUserInfo);
             user.setContent(JSON.toJSONString(jsonObject));
-            user.setName(tgUserInfo.getString("username"));
-            user.setTgId(tgUserInfo.getString("id"));
+            user.setName(tgUserInfo.get("username"));
+            user.setTgId(tgUserInfo.get("id"));
             user.setId(new BigInteger(userRepository.insert(user)));
         }
         result.put("userId", user.getId());
@@ -123,6 +122,18 @@ public class UserServiceImpl implements UserService {
     }
 
     public void bindUserEthAddress(BindUserEthRequest request){
+        String storedNonce = RedisUtils.get("NONCE_ON_ADDRESS_" + request.getEthAddress());
+        if(StringUtils.isBlank(storedNonce)){
+            throw new DomainException("Invalid eth address",500);
+        }
+        boolean verified = EthereumAuthUtils.verifySignature(
+                request.getEthAddress(),
+                request.getSignature(),
+                storedNonce
+        );
+        if(!verified){
+            throw new DomainException("eth address verify failed",403);
+        }
         User user = userRepository.findByEthAddress(request.getEthAddress(), false);
         if(user != null){
             throw new DomainException("EthAddress has bound another user!", 403);

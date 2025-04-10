@@ -2,10 +2,7 @@ package com.lazai.biz.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lazai.entity.User;
-import com.lazai.request.BindUserEthRequest;
-import com.lazai.request.LoginRequest;
-import com.lazai.request.UserCreateRequest;
-import com.lazai.request.UserLoginByTgRequest;
+import com.lazai.request.*;
 
 public interface UserService {
 
