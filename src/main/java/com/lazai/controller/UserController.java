@@ -58,6 +58,7 @@ public class UserController {
         return JsonApiResponse.success(userService.loginWithEthAddress(bizRequest));
     }
 
+
     @PostMapping("/bindEthAddress")
     @ResultLog(name = "UserController.bindEthAddress", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> bindEthAddress(@RequestBody BindUserEthRequest bizRequest, HttpServletRequest request){
