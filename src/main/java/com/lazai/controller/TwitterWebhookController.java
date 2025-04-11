@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 
 @RestController
@@ -34,8 +36,9 @@ public class TwitterWebhookController {
     @GetMapping("/auth")
     public JsonApiResponse<Object> authCodeHandle(@RequestParam("state") String state, @RequestParam("code") String code, HttpServletRequest request) {
         JSONObject tokenResult = twitterService.getTokenByCode(code);
+        List<String> stateList = List.of(state.split(","));
         JSONObject me = twitterService.getMe(tokenResult.getString("access_token"));
-        User user = JWTUtils.getUser();
+        User user = userRepository.findById(stateList.get(0), false);
         RedisUtils.set("twitter_bearer_token_" + user.getId(), tokenResult.getString("access_token"));
         user.setxId(me.getJSONObject("data").getString("id"));
         JSONObject userContent = JSON.parseObject(user.getContent());

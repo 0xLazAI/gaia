@@ -114,7 +114,7 @@ public class TwitterServiceImpl implements TwitterService {
                 .addQueryParameter("grant_type", "authorization_code")
                 .addQueryParameter("code_verifier", "challenge")
                 .addQueryParameter("code", code)
-                .addQueryParameter("redirect_uri", "https://97ef-185-241-40-67.ngrok-free.app")
+                .addQueryParameter("redirect_uri", "http://localhost:8080/twitter/webhook/auth")
                 .build();
 
         Request request = new Request.Builder()
