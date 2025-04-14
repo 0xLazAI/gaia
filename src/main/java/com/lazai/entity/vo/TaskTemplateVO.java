@@ -1,5 +1,7 @@
 package com.lazai.entity.vo;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.math.BigInteger;
 
 public class TaskTemplateVO {
@@ -13,6 +15,16 @@ public class TaskTemplateVO {
     private Integer taskCount;
 
     private String taskType;
+
+    private JSONObject content;
+
+    public JSONObject getContent() {
+        return content;
+    }
+
+    public void setContent(JSONObject content) {
+        this.content = content;
+    }
 
     public String getTaskType() {
         return taskType;

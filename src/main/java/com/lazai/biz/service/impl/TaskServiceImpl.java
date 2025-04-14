@@ -303,13 +303,18 @@ public class TaskServiceImpl implements TaskService {
                 }else if("DAILY".equals(taskTemplate.getProcessType()) || "DAILY_TIMES".equals(taskTemplate.getProcessType())){
                    Date endOfToday = DateUtils.getEndOfToday();
                    Date startOfToday = DateUtils.getStartOfToday();
-
+                   JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
+                   JSONObject taskTemplateVOSingleContent = new JSONObject();
+                   if(templateContent.getJSONObject("context").getInteger("dailyTimes") != null){
+                       taskTemplateVOSingleContent.put("dailyTimesLimit", templateContent.getJSONObject("context").getInteger("dailyTimes"));
+                   }
                    if(taskRecord.getCreatedAt().getTime() <= endOfToday.getTime() && taskRecord.getCreatedAt().getTime() >= startOfToday.getTime()){
                        taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
                        if("finish".equals(taskRecord.getStatus())){
                            taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                        }
                    }
+                    taskTemplateVOSingle.setContent(taskTemplateVOSingleContent);
                 }
             }
             result = taskTemplateVOMap.values().stream().toList();
