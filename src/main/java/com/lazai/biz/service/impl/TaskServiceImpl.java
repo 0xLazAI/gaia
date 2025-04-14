@@ -9,11 +9,9 @@ import com.lazai.entity.ScoreBalance;
 import com.lazai.entity.TaskAction;
 import com.lazai.entity.TaskRecord;
 import com.lazai.entity.TaskTemplate;
-import com.lazai.entity.dto.ScoreBalanceQueryParam;
-import com.lazai.entity.dto.TaskRecordNodeDTO;
-import com.lazai.entity.dto.TaskRecordQueryParam;
-import com.lazai.entity.dto.TaskTemplateNodeDTO;
+import com.lazai.entity.dto.*;
 import com.lazai.entity.vo.TaskRecordVO;
+import com.lazai.entity.vo.TaskTemplateVO;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.ScoreBalanceRepository;
 import com.lazai.repostories.TaskActionRepository;
@@ -269,6 +267,52 @@ public class TaskServiceImpl implements TaskService {
                     taskRecordVOSingle.setScoreInfo(JSON.parseObject(JSON.toJSONString(scoreBalanceMap.get(taskRecordVOSingle.getTaskNo()))));
                 }
             }
+        }
+        return result;
+    }
+
+    public List<TaskTemplateVO> userTaskTemplatesUse(TaskQueryRequest taskQueryRequest){
+        List<TaskTemplateVO> result = new ArrayList<>();
+        Map<String, TaskTemplateVO> taskTemplateVOMap = new HashMap<>();
+        TaskRecordQueryParam taskRecordQueryParam = toQueryParam(taskQueryRequest);
+        List<TaskRecord> taskRecords = taskRecordRepository.queryList(taskRecordQueryParam);
+        TaskTemplateQueryParam taskTemplateQueryParam = new TaskTemplateQueryParam();
+        taskTemplateQueryParam.setTemplateCodes(taskQueryRequest.getTemplateCodes());
+        List<TaskTemplate> taskTemplateList = taskTemplateRepository.queryList(taskTemplateQueryParam);
+        Map<String, TaskTemplate> taskTemplateMap = taskTemplateList.stream().collect(Collectors.toMap(TaskTemplate::getTemplateCode, b->b));
+        if(!CollectionUtils.isEmpty(taskRecords)){
+            for(TaskRecord taskRecord:taskRecords){
+                TaskTemplate taskTemplate = taskTemplateMap.get(taskRecord.getTaskTemplateId());
+                TaskTemplateVO taskTemplateVOSingle = null;
+                if(!taskTemplateVOMap.containsKey(taskRecord.getTaskTemplateId())){
+                    taskTemplateVOSingle = new TaskTemplateVO();
+                    taskTemplateVOSingle.setTaskName(taskTemplate.getTemplateName());
+                    taskTemplateVOSingle.setTaskTemplateId(taskRecord.getTaskTemplateId());
+                    taskTemplateVOSingle.setTaskFinishCount(0);
+                    taskTemplateVOSingle.setTaskCount(0);
+                    taskTemplateVOSingle.setTaskType(taskTemplate.getProcessType());
+                    taskTemplateVOMap.put(taskRecord.getTaskTemplateId(), taskTemplateVOSingle);
+                }else{
+                    taskTemplateVOSingle = taskTemplateVOMap.get(taskRecord.getTaskTemplateId());
+                }
+                if("ONCE".equals(taskTemplate.getProcessType())){
+                    taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
+                    if("finish".equals(taskRecord.getStatus())){
+                        taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
+                    }
+                }else if("DAILY".equals(taskTemplate.getProcessType()) || "DAILY_TIMES".equals(taskTemplate.getProcessType())){
+                   Date endOfToday = DateUtils.getEndOfToday();
+                   Date startOfToday = DateUtils.getStartOfToday();
+
+                   if(taskRecord.getCreatedAt().getTime() <= endOfToday.getTime() && taskRecord.getCreatedAt().getTime() >= startOfToday.getTime()){
+                       taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
+                       if("finish".equals(taskRecord.getStatus())){
+                           taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
+                       }
+                   }
+                }
+            }
+            result = taskTemplateVOMap.values().stream().toList();
         }
         return result;
     }

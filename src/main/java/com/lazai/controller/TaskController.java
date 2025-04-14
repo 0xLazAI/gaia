@@ -54,4 +54,12 @@ public class TaskController {
         bizRequest.setInnerPlatformUserId(loginUser.getId()+"");
         return JsonApiResponse.success(taskService.userTaskRecords(bizRequest));
     }
+
+    @GetMapping("/userTaskTemplatesUse")
+    @ResultLog(name = "TestController.userTaskTemplatesUse", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> userTaskTemplatesUse(@ModelAttribute TaskQueryRequest bizRequest, HttpServletRequest request){
+        User loginUser = JWTUtils.getUser();
+        bizRequest.setInnerPlatformUserId(loginUser.getId()+"");
+        return JsonApiResponse.success(taskService.userTaskTemplatesUse(bizRequest));
+    }
 }

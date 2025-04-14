@@ -1,5 +1,7 @@
 package com.lazai.entity.dto;
 
+import java.util.List;
+
 public class TaskTemplateQueryParam {
 
     private String status;
@@ -7,6 +9,8 @@ public class TaskTemplateQueryParam {
     private String app;
 
     private String templateCode;
+
+    private List<String> templateCodes;
 
     private String templateName;
 
@@ -17,6 +21,14 @@ public class TaskTemplateQueryParam {
     private Integer pageSize;
 
     private String processType;
+
+    public List<String> getTemplateCodes() {
+        return templateCodes;
+    }
+
+    public void setTemplateCodes(List<String> templateCodes) {
+        this.templateCodes = templateCodes;
+    }
 
     public String getProcessType() {
         return processType;
