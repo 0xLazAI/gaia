@@ -3,6 +3,7 @@ package com.lazai.controller;
 import com.lazai.annotation.ResultLog;
 import com.lazai.biz.service.TaskService;
 import com.lazai.core.common.JsonApiResponse;
+import com.lazai.core.common.RoleDTO;
 import com.lazai.entity.User;
 import com.lazai.enums.MethodTypeEnum;
 import com.lazai.request.TaskCreateRequest;
@@ -29,12 +30,19 @@ public class TaskController {
     @PostMapping("/triggerTask")
     @ResultLog(name = "TaskController.triggerTask", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> triggerTask(@RequestBody TriggerTaskRequest triggerTaskRequest, HttpServletRequest request){
+        User loginUser = JWTUtils.getUser();
+        RoleDTO operator = new RoleDTO();
+        operator.setId(loginUser.getId()+"");
+        operator.setName(loginUser.getName());
+        triggerTaskRequest.setOperator(operator);
         return JsonApiResponse.success(taskService.triggerTask(triggerTaskRequest));
     }
 
     @PostMapping("/createAndTriggerTask")
     @ResultLog(name = "TaskController.createAndTriggerTask", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> createAndTriggerTask(@RequestBody TaskCreateRequest taskCreateRequest, HttpServletRequest request){
+        User loginUser = JWTUtils.getUser();
+        taskCreateRequest.setInnerUserId(loginUser.getId()+"");
         taskService.createAndTriggerTask(taskCreateRequest);
         return JsonApiResponse.success(true);
     }
@@ -42,6 +50,8 @@ public class TaskController {
     @GetMapping("/userTaskRecords")
     @ResultLog(name = "TestController.userTaskRecords", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> userTaskRecords(@ModelAttribute TaskQueryRequest bizRequest, HttpServletRequest request){
+        User loginUser = JWTUtils.getUser();
+        bizRequest.setInnerPlatformUserId(loginUser.getId()+"");
         return JsonApiResponse.success(taskService.userTaskRecords(bizRequest));
     }
 }
