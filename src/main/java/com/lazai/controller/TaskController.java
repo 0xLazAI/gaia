@@ -23,7 +23,12 @@ public class TaskController {
     @PostMapping("/createTask")
     @ResultLog(name = "TaskController.createTask", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> createTask(@RequestBody TaskCreateRequest taskCreateRequest, HttpServletRequest request){
-        User user = JWTUtils.getUser();
+        User loginUser = JWTUtils.getUser();
+        RoleDTO operator = new RoleDTO();
+        operator.setId(loginUser.getId()+"");
+        operator.setName(loginUser.getName());
+        taskCreateRequest.setOperator(operator);
+        taskCreateRequest.setInnerUserId(loginUser.getId()+"");
         return JsonApiResponse.success(taskService.createTask(taskCreateRequest));
     }
 
@@ -43,6 +48,10 @@ public class TaskController {
     public JsonApiResponse<Object> createAndTriggerTask(@RequestBody TaskCreateRequest taskCreateRequest, HttpServletRequest request){
         User loginUser = JWTUtils.getUser();
         taskCreateRequest.setInnerUserId(loginUser.getId()+"");
+        RoleDTO operator = new RoleDTO();
+        operator.setId(loginUser.getId()+"");
+        operator.setName(loginUser.getName());
+        taskCreateRequest.setOperator(operator);
         taskService.createAndTriggerTask(taskCreateRequest);
         return JsonApiResponse.success(true);
     }

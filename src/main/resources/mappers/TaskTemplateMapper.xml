@@ -108,7 +108,9 @@
         <include refid="Base_Column_List"/>
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
             </if>
@@ -139,7 +141,9 @@
         <include refid="Base_Column_List"/>
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
             </if>
@@ -171,7 +175,9 @@
         count(id)
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
             </if>

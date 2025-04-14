@@ -108,9 +108,17 @@
         <include refid="Base_Column_List"/>
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
+            </if>
+            <if test="templateCodes != null">
+                AND template_code IN
+                <foreach collection="templateCodes" item="templateCode" open="(" separator="," close=")">
+                    #{templateCode}
+                </foreach>
             </if>
             <if test="templateCode != null">
                 AND template_code = #{templateCode}
@@ -133,9 +141,17 @@
         <include refid="Base_Column_List"/>
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
+            </if>
+            <if test="templateCodes != null">
+                AND template_code IN
+                <foreach collection="templateCodes" item="templateCode" open="(" separator="," close=")">
+                    #{templateCode}
+                </foreach>
             </if>
             <if test="templateCode != null">
                 AND template_code = #{templateCode}
@@ -159,9 +175,17 @@
         count(id)
         from task_template
         <where>
-            status = #{status}
+            <if test="status != null">
+                AND status = #{status}
+            </if>
             <if test="app != null">
                 AND app = #{app}
+            </if>
+            <if test="templateCodes != null">
+                AND template_code IN
+                <foreach collection="templateCodes" item="templateCode" open="(" separator="," close=")">
+                    #{templateCode}
+                </foreach>
             </if>
             <if test="templateCode != null">
                 AND template_code = #{templateCode}

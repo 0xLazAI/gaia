@@ -74,7 +74,7 @@ public class TaskServiceImpl implements TaskService {
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("process","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 List<TaskRecord> existsTask = taskRecordRepository.queryList(taskRecordQueryParamTmp);
                 if(!CollectionUtils.isEmpty(existsTask)){
@@ -87,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("process","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 taskRecordQueryParamTmp.setCreatedStart(DateUtils.getStartOfToday());
                 taskRecordQueryParamTmp.setCreatedEnd(DateUtils.getEndOfToday());
@@ -102,13 +102,13 @@ public class TaskServiceImpl implements TaskService {
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("process","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 taskRecordQueryParamTmp.setCreatedStart(DateUtils.getStartOfToday());
                 taskRecordQueryParamTmp.setCreatedEnd(DateUtils.getEndOfToday());
                 List<TaskRecord> existsTask = taskRecordRepository.queryList(taskRecordQueryParamTmp);
                 if(!CollectionUtils.isEmpty(existsTask) && existsTask.size() >= templateContent.getJSONObject("context").getInteger("dailyTimes")){
-                   throw new DomainException("This task can only be triggered" + templateContent.getJSONObject("context").getInteger("dailyTimes") + " times a day. ",403);
+                   throw new DomainException("This task can only be triggered " + templateContent.getJSONObject("context").getInteger("dailyTimes") + " times a day. ",403);
                 }
             }
 
