@@ -1,10 +1,7 @@
 HELP.md
 target/
-
-.mvn/wrapper/maven-wrapper.jar
-**/src/main/**/target/
-**/src/test/**/target/
 src/main/resources/application.properties
+src/main/resources/redisson.yaml
 
 ### STS ###
 .apt_generated
@@ -33,6 +30,5 @@ build/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/application.properties
-/src/main/resources/redisson.yaml
+
 /LOG_HOME_IS_UNDEFINED/
