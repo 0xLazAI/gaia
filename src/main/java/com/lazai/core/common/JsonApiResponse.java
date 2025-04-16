@@ -1,16 +1,21 @@
 package com.lazai.core.common;
 
+import com.lazai.utils.TraceIdUtil;
+import org.slf4j.MDC;
+
 public class JsonApiResponse<T> {
 
     private Integer code;
     private String message;
     private T data;
+    private String traceId;
 
     public static <T> JsonApiResponse<T> success(T data){
         JsonApiResponse jsonApiResponse = new JsonApiResponse();
         jsonApiResponse.setCode(200);
         jsonApiResponse.setMessage("success");
         jsonApiResponse.setData(data);
+        jsonApiResponse.setTraceId(MDC.get(TraceIdUtil.TRACE_ID));
         return jsonApiResponse;
     }
 
@@ -19,6 +24,7 @@ public class JsonApiResponse<T> {
         jsonApiResponse.setCode(code);
         jsonApiResponse.setMessage(message);
         jsonApiResponse.setData(data);
+        jsonApiResponse.setTraceId(MDC.get(TraceIdUtil.TRACE_ID));
         return jsonApiResponse;
     }
 
@@ -44,5 +50,13 @@ public class JsonApiResponse<T> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
     }
 }

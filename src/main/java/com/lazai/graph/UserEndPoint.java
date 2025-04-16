@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.lazai.annotation.ResultLog;
 import com.lazai.biz.service.TwitterService;
 import com.lazai.biz.service.UserService;
+import com.lazai.core.common.GraphQLResponse;
 import com.lazai.entity.User;
 import com.lazai.enums.MethodTypeEnum;
 import com.lazai.request.BindTwitterUserInfoRequest;
@@ -26,35 +27,37 @@ public class UserEndPoint {
 
     @ResultLog(name = "UserEndPoint.getUserById", methodType = MethodTypeEnum.UPPER)
     @QueryMapping("getUserDetail")
-    public User getUserById(@Argument String id){
-        return userService.getById(id);
+    public GraphQLResponse<User> getUserById(@Argument String id){
+
+        return GraphQLResponse.success(userService.getById(id));
     }
 
 
     @ResultLog(name = "UserEndPoint.loginWithTg", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("loginWithTg")
-    public JSONObject loginWithTg(@Argument("req") UserLoginByTgRequest request){
-        return userService.createAndLoginByTgInfo(request);
+    public GraphQLResponse<JSONObject> loginWithTg(@Argument("req") UserLoginByTgRequest request){
+        return GraphQLResponse.success(userService.createAndLoginByTgInfo(request));
     }
 
     @ResultLog(name = "UserEndPoint.bindTwitterUserInfo", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("bindTwitterUserInfo")
-    public Boolean bindTwitterUserInfo(@Argument("req") BindTwitterUserInfoRequest request){
+    public GraphQLResponse<Boolean> bindTwitterUserInfo(@Argument("req") BindTwitterUserInfoRequest request){
         twitterService.bindTwitterUserInfo(request);
-        return true;
+        return GraphQLResponse.success(true);
     }
 
     @ResultLog(name = "UserEndPoint.bindEthAddress", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("bindEthAddress")
-    public Boolean bindEthAddress(@Argument("req") BindUserEthRequest request){
+    public GraphQLResponse<Boolean> bindEthAddress(@Argument("req") BindUserEthRequest request){
         userService.bindUserEthAddress(request);
-        return true;
+        return GraphQLResponse.success(true);
     }
 
     @ResultLog(name = "UserEndPoint.getNonce", methodType = MethodTypeEnum.UPPER)
     @QueryMapping("getNonce")
-    public String getNonce(@Argument String address){
-        return userService.getNonce(address);
+    public GraphQLResponse<String> getNonce(@Argument String address){
+
+        return GraphQLResponse.success(userService.getNonce(address));
     }
 
 }

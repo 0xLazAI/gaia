@@ -1,23 +1,37 @@
 type Query{
-    getUserDetail(id: String): UserVo
+    getUserDetail(id: String): UserVoResponse
 
-    getNonce(address: String): String
+    getNonce(address: String): StringResponse
 }
 
 type Mutation{
-    loginWithTg(req: LoginWithTgReq!) : LoginResult
+    loginWithTg(req: LoginWithTgReq!) : LoginResultResponse
 
-    bindTwitterUserInfo(req: BindTwitterUserInfoRequest!): Boolean
+    bindTwitterUserInfo(req: BindTwitterUserInfoRequest!): BooleanResponse
 
-    bindEthAddress(req: BindEthAddressRequest!): Boolean
+    bindEthAddress(req: BindEthAddressRequest!): BooleanResponse
 
 
 }
 
+type StringResponse{
+    success: Boolean
+    traceId: String
+    data: String
+}
 
-#private String id;
-#private String name;
-#private String status;
+type BooleanResponse{
+    success: Boolean
+    traceId: String
+    data: Boolean
+}
+
+type UserVoResponse{
+    success: Boolean
+    traceId: String
+    data: UserVo
+}
+
 type UserVo {
     # user id
     id: String
@@ -27,6 +41,11 @@ type UserVo {
     status: String
 }
 
+type LoginResultResponse{
+    success: Boolean
+    traceId: String
+    data: LoginResult
+}
 type LoginResult{
     userId: String
     token:String
