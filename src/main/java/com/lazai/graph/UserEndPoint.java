@@ -33,20 +33,20 @@ public class UserEndPoint {
 
     @ResultLog(name = "UserEndPoint.loginWithTg", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("loginWithTg")
-    public JSONObject loginWithTg(@Argument UserLoginByTgRequest request){
+    public JSONObject loginWithTg(@Argument("req") UserLoginByTgRequest request){
         return userService.createAndLoginByTgInfo(request);
     }
 
     @ResultLog(name = "UserEndPoint.bindTwitterUserInfo", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("bindTwitterUserInfo")
-    public Boolean bindTwitterUserInfo(@Argument BindTwitterUserInfoRequest request){
+    public Boolean bindTwitterUserInfo(@Argument("req") BindTwitterUserInfoRequest request){
         twitterService.bindTwitterUserInfo(request);
         return true;
     }
 
     @ResultLog(name = "UserEndPoint.bindEthAddress", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("bindEthAddress")
-    public Boolean bindEthAddress(@Argument BindUserEthRequest request){
+    public Boolean bindEthAddress(@Argument("req") BindUserEthRequest request){
         userService.bindUserEthAddress(request);
         return true;
     }
