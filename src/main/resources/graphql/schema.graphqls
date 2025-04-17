@@ -2,6 +2,10 @@ type Query{
     getUserDetail(id: String): UserVoResponse
 
     getNonce(address: String): StringResponse
+
+    getUserTaskTemplatesUse(bizReq: taskQueryRequest): TaskTemplateUseListResponse
+
+    getUserTaskRecords(bizReq: taskQueryRequest): TaskRecordListResponse
 }
 
 type Mutation{
@@ -11,7 +15,62 @@ type Mutation{
 
     bindEthAddress(req: BindEthAddressRequest!): BooleanResponse
 
+    claim(req: ClaimRequest!):BooleanResponse
+}
 
+
+
+type TaskTemplateUseListResponse{
+    success: Boolean
+    traceId: String
+    data: [TaskTemplateUse]
+}
+
+type TaskRecordListResponse{
+    success: Boolean
+    traceId: String
+    data: [TaskRecord]
+}
+
+type TaskRecord{
+    taskNo: String
+    taskName: String
+    taskTemplateId: String
+    content: String
+    context: String
+    creator: String
+    operator: String
+    version: Int
+    status: String
+    createdAt: String
+    updatedAt: String
+    innerUser: String
+    app: String
+    scoreInfo: [ScoreInfo]
+}
+
+type TaskTemplateUse{
+    taskName: String
+    taskTemplateId: String
+    taskFinishCount: String
+    taskCount: String
+    taskType: String
+    content: TaskTemplateContent
+}
+
+type TaskTemplateContent{
+    dailyTimesLimit: Int
+}
+
+type ScoreInfo{
+    createdAt: String
+    score: Int
+    bizId: String
+    scoreType: String
+    id: Int
+    userId: String
+    direction: String
+    updatedAt: String
 }
 
 type StringResponse{
@@ -39,6 +98,9 @@ type UserVo {
     name: String
     # user status
     status: String
+    tgId: String
+    xId: String
+    ethAddress: String
 }
 
 type LoginResultResponse{
@@ -65,9 +127,26 @@ input BindTwitterUserInfoRequest {
     status: String
 }
 
+input taskQueryRequest{
+    templateCodes: [String!]
+    taskNos: [String!]
+    app: String
+}
+
 input BindEthAddressRequest {
     # style id
     ethAddress: String!
 
     signature: String!
+}
+
+input ClaimRequest {
+    # style id
+    templateCode: String!
+
+    app: String!
+
+    bizId: String
+
+    bizType: String
 }

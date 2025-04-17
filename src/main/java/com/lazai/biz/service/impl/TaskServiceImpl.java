@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,9 @@ public class TaskServiceImpl implements TaskService {
     private ScoreBalanceRepository scoreBalanceRepository;
 
     private static final Logger ERROR_LOGGER = LoggerFactory.getLogger("ERROR_LOG");
+
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 
     public String createTask(TaskCreateRequest request){
@@ -263,8 +267,9 @@ public class TaskServiceImpl implements TaskService {
                 scoreBalanceMap = scoreBalanceList.stream().collect(Collectors.toMap(ScoreBalance::getBizId, b->b));
             }
             for(TaskRecordVO taskRecordVOSingle:result){
+                List<JSONObject> scoreInfoList = taskRecordVOSingle.getScoreInfo();
                 if(scoreBalanceMap.containsKey(taskRecordVOSingle.getTaskNo())){
-                    taskRecordVOSingle.setScoreInfo(JSON.parseObject(JSON.toJSONString(scoreBalanceMap.get(taskRecordVOSingle.getTaskNo()))));
+                    scoreInfoList.add(JSON.parseObject(JSON.toJSONString(scoreBalanceMap.get(taskRecordVOSingle.getTaskNo()))));
                 }
             }
         }
@@ -358,7 +363,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRecord;
     }
 
-    public static List<TaskRecordVO> toTaskRecordVOs(List<TaskRecord> taskRecords){
+    public List<TaskRecordVO> toTaskRecordVOs(List<TaskRecord> taskRecords){
         List<TaskRecordVO> result = new ArrayList<>();
         if(!CollectionUtils.isEmpty(taskRecords)){
             for(TaskRecord taskRecord:taskRecords){
@@ -369,7 +374,7 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    public static TaskRecordVO toTaskRecordVO(TaskRecord taskRecord){
+    public  TaskRecordVO toTaskRecordVO(TaskRecord taskRecord){
         TaskRecordVO taskRecordVO = new TaskRecordVO();
         taskRecordVO.setId(taskRecord.getId());
         taskRecordVO.setTaskNo(taskRecord.getTaskNo());
@@ -379,9 +384,9 @@ public class TaskServiceImpl implements TaskService {
         taskRecordVO.setCreator(taskRecord.getCreator());
         taskRecordVO.setOperator(taskRecord.getOperator());
         taskRecordVO.setVersion(taskRecord.getVersion());
-        taskRecordVO.setCreatedAt(taskRecord.getCreatedAt());
+        taskRecordVO.setCreatedAt(simpleDateFormat.format(taskRecord.getCreatedAt()));
         taskRecordVO.setStatus(taskRecord.getStatus());
-        taskRecordVO.setUpdatedAt(taskRecord.getUpdatedAt());
+        taskRecordVO.setUpdatedAt(simpleDateFormat.format(taskRecord.getUpdatedAt()));
         taskRecordVO.setInnerUser(taskRecord.getInnerUser());
         taskRecordVO.setOuterUser(taskRecord.getOuterUser());
         taskRecordVO.setApp(taskRecord.getApp());

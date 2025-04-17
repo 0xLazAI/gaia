@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TaskRecordVO implements Serializable {
 
@@ -32,9 +34,9 @@ public class TaskRecordVO implements Serializable {
 
     private String status;
 
-    private Date createdAt;
+    private String createdAt;
 
-    private Date updatedAt;
+    private String updatedAt;
 
     private String innerUser;
 
@@ -42,7 +44,7 @@ public class TaskRecordVO implements Serializable {
 
     private String app;
 
-    private JSONObject scoreInfo;
+    private List<JSONObject> scoreInfo = new ArrayList<>();
 
     public String getTaskName() {
         return taskName;
@@ -52,11 +54,11 @@ public class TaskRecordVO implements Serializable {
         this.taskName = taskName;
     }
 
-    public JSONObject getScoreInfo() {
+    public List<JSONObject> getScoreInfo() {
         return scoreInfo;
     }
 
-    public void setScoreInfo(JSONObject scoreInfo) {
+    public void setScoreInfo(List<JSONObject> scoreInfo) {
         this.scoreInfo = scoreInfo;
     }
 
@@ -124,13 +126,6 @@ public class TaskRecordVO implements Serializable {
         this.version = version;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public String getStatus() {
         return status;
@@ -140,11 +135,19 @@ public class TaskRecordVO implements Serializable {
         this.status = status;
     }
 
-    public Date getUpdatedAt() {
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
