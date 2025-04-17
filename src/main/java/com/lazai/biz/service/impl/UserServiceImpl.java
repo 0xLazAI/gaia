@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lazai.biz.service.UserService;
 import com.lazai.entity.User;
+import com.lazai.entity.UserScore;
+import com.lazai.entity.vo.UserVO;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.UserRepository;
+import com.lazai.repostories.UserScoreRepository;
 import com.lazai.request.*;
 import com.lazai.utils.EthereumAuthUtils;
 import com.lazai.utils.JWTUtils;
@@ -25,13 +28,17 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserScoreRepository userScoreRepository;
+
     @Override
-    public User getById(String id){
-        User rt =  userRepository.findById(id, false);
-        if(rt == null){
+    public UserVO getById(String id){
+        User userInfo =  userRepository.findById(id, false);
+        if(userInfo == null){
             throw new DomainException("no user",404);
         }
-        return rt;
+        UserScore userScore = userScoreRepository.getByUserId(new BigInteger(id));
+        return toUserVO(userInfo,userScore);
     }
 
     public String createUser(UserCreateRequest request){
@@ -185,6 +192,24 @@ public class UserServiceImpl implements UserService {
         user.setTgId(request.getTgId());
         user.setxId(request.getxId());
         return user;
+    }
+
+    public UserVO toUserVO(User user, UserScore userScore){
+        UserVO userVO = new UserVO();
+        userVO.setId(user.getId());
+        userVO.setName(user.getName());
+        userVO.setStatus(user.getStatus());
+        userVO.setTgId(user.getTgId());
+        userVO.setEthAddress(user.getEthAddress());
+        userVO.setxId(user.getxId());
+        userVO.setCreatedAt(user.getCreatedAt());
+        userVO.setUpdatedAt(user.getUpdatedAt());
+        userVO.setContent(user.getContent());
+        if(userScore != null){
+            userVO.setScoreInfo(JSON.parseObject(userScore.getContent()));
+        }
+        return userVO;
+
     }
 
 }

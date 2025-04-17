@@ -2,11 +2,12 @@ package com.lazai.biz.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lazai.entity.User;
+import com.lazai.entity.vo.UserVO;
 import com.lazai.request.*;
 
 public interface UserService {
 
-    User getById(String id);
+    UserVO getById(String id);
 
     String createUser(UserCreateRequest request);
 

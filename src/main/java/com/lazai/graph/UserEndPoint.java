@@ -6,6 +6,7 @@ import com.lazai.biz.service.TwitterService;
 import com.lazai.biz.service.UserService;
 import com.lazai.core.common.GraphQLResponse;
 import com.lazai.entity.User;
+import com.lazai.entity.vo.UserVO;
 import com.lazai.enums.MethodTypeEnum;
 import com.lazai.request.BindTwitterUserInfoRequest;
 import com.lazai.request.BindUserEthRequest;
@@ -27,7 +28,7 @@ public class UserEndPoint {
 
     @ResultLog(name = "UserEndPoint.getUserById", methodType = MethodTypeEnum.UPPER)
     @QueryMapping("getUserDetail")
-    public GraphQLResponse<User> getUserById(@Argument String id){
+    public GraphQLResponse<UserVO> getUserById(@Argument String id){
 
         return GraphQLResponse.success(userService.getById(id));
     }

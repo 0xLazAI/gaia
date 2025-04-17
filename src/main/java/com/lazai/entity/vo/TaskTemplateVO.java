@@ -2,9 +2,12 @@ package com.lazai.entity.vo;
 
 import com.alibaba.fastjson.JSONObject;
 
-import java.math.BigInteger;
+import java.io.Serializable;
 
-public class TaskTemplateVO {
+public class TaskTemplateVO implements Serializable {
+
+
+    private static final long serialVersionUID = -4701370487660212035L;
 
     private String taskName;
 

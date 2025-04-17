@@ -56,14 +56,14 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
             if(userScore == null){
                 userScore = new UserScore();
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("common_score", scoreAddRequest.getScore());
+                jsonObject.put("commonScore", scoreAddRequest.getScore());
                 jsonObject.put("operator", scoreAddRequest.getOperator());
                 userScore.setContent(jsonObject.toJSONString());
                 userScore.setUserId(userInfo.getId().toString());
                 userScoreRepository.insert(userScore);
             }else{
                 JSONObject jsonObject = JSON.parseObject(userScore.getContent());
-                jsonObject.put("common_score", (jsonObject.getBigInteger("common_score")).add(scoreAddRequest.getScore()));
+                jsonObject.put("commonScore", (jsonObject.getBigInteger("commonScore")).add(scoreAddRequest.getScore()));
                 jsonObject.put("operator", scoreAddRequest.getOperator());
                 userScore.setContent(jsonObject.toJSONString());
                 userScoreRepository.updateById(userScore);

@@ -101,6 +101,11 @@ type UserVo {
     tgId: String
     xId: String
     ethAddress: String
+    scoreInfo: UserScoreInfo
+}
+
+type UserScoreInfo{
+    commonScore: String
 }
 
 type LoginResultResponse{
