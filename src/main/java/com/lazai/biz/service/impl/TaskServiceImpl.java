@@ -278,53 +278,59 @@ public class TaskServiceImpl implements TaskService {
 
     public List<TaskTemplateVO> userTaskTemplatesUse(TaskQueryRequest taskQueryRequest){
         List<TaskTemplateVO> result = new ArrayList<>();
-        Map<String, TaskTemplateVO> taskTemplateVOMap = new HashMap<>();
         TaskRecordQueryParam taskRecordQueryParam = toQueryParam(taskQueryRequest);
         List<TaskRecord> taskRecords = taskRecordRepository.queryList(taskRecordQueryParam);
         TaskTemplateQueryParam taskTemplateQueryParam = new TaskTemplateQueryParam();
         taskTemplateQueryParam.setTemplateCodes(taskQueryRequest.getTemplateCodes());
         List<TaskTemplate> taskTemplateList = taskTemplateRepository.queryList(taskTemplateQueryParam);
-        Map<String, TaskTemplate> taskTemplateMap = taskTemplateList.stream().collect(Collectors.toMap(TaskTemplate::getTemplateCode, b->b));
+        Map<String, TaskTemplateVO> taskTemplateVOMap = taskTemplateList.stream().collect(Collectors.toMap(TaskTemplate::getTemplateCode, this::toTaskTemplateVO));
         if(!CollectionUtils.isEmpty(taskRecords)){
             for(TaskRecord taskRecord:taskRecords){
-                TaskTemplate taskTemplate = taskTemplateMap.get(taskRecord.getTaskTemplateId());
-                TaskTemplateVO taskTemplateVOSingle = null;
-                if(!taskTemplateVOMap.containsKey(taskRecord.getTaskTemplateId())){
-                    taskTemplateVOSingle = new TaskTemplateVO();
-                    taskTemplateVOSingle.setTaskName(taskTemplate.getTemplateName());
-                    taskTemplateVOSingle.setTaskTemplateId(taskRecord.getTaskTemplateId());
-                    taskTemplateVOSingle.setTaskFinishCount(0);
-                    taskTemplateVOSingle.setTaskCount(0);
-                    taskTemplateVOSingle.setTaskType(taskTemplate.getProcessType());
-                    taskTemplateVOMap.put(taskRecord.getTaskTemplateId(), taskTemplateVOSingle);
-                }else{
-                    taskTemplateVOSingle = taskTemplateVOMap.get(taskRecord.getTaskTemplateId());
-                }
-                if("ONCE".equals(taskTemplate.getProcessType())){
+                TaskTemplateVO taskTemplateVOSingle = taskTemplateVOMap.get(taskRecord.getTaskTemplateId());;
+                if("ONCE".equals(taskTemplateVOSingle.getTaskType())){
                     taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
                     if("finish".equals(taskRecord.getStatus())){
                         taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                     }
-                }else if("DAILY".equals(taskTemplate.getProcessType()) || "DAILY_TIMES".equals(taskTemplate.getProcessType())){
+                }else if("DAILY".equals(taskTemplateVOSingle.getTaskType()) || "DAILY_TIMES".equals(taskTemplateVOSingle.getTaskType())){
                    Date endOfToday = DateUtils.getEndOfToday();
                    Date startOfToday = DateUtils.getStartOfToday();
-                   JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
-                   JSONObject taskTemplateVOSingleContent = new JSONObject();
-                   if(templateContent.getJSONObject("context").getInteger("dailyTimes") != null){
-                       taskTemplateVOSingleContent.put("dailyTimesLimit", templateContent.getJSONObject("context").getInteger("dailyTimes"));
-                   }
                    if(taskRecord.getCreatedAt().getTime() <= endOfToday.getTime() && taskRecord.getCreatedAt().getTime() >= startOfToday.getTime()){
                        taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
                        if("finish".equals(taskRecord.getStatus())){
                            taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                        }
                    }
-                    taskTemplateVOSingle.setContent(taskTemplateVOSingleContent);
                 }
             }
-            result = taskTemplateVOMap.values().stream().toList();
+
         }
+        result = taskTemplateVOMap.values().stream().toList();
         return result;
+    }
+
+    public TaskTemplateVO toTaskTemplateVO(TaskTemplate taskTemplate){
+        TaskTemplateVO taskTemplateVO = new TaskTemplateVO();
+
+        taskTemplateVO.setTaskType(taskTemplate.getProcessType());
+        taskTemplateVO.setTaskName(taskTemplate.getTemplateName());
+        taskTemplateVO.setTaskTemplateId(taskTemplate.getTemplateCode());
+        taskTemplateVO.setTaskFinishCount(0);
+        taskTemplateVO.setTaskCount(0);
+        JSONObject taskTemplateVOSingleContent = new JSONObject();
+        JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
+        if("DAILY".equals(taskTemplate.getProcessType()) || "DAILY_TIMES".equals(taskTemplate.getProcessType())){
+            if(templateContent.getJSONObject("context").getInteger("dailyTimes") != null){
+                taskTemplateVOSingleContent.put("dailyTimesLimit", templateContent.getJSONObject("context").getInteger("dailyTimes"));
+            }
+        }
+        if(StringUtils.isNotBlank(templateContent.getJSONObject("context").getString("twitterName"))){
+            taskTemplateVOSingleContent.put("twitterName", templateContent.getJSONObject("context").getString("twitterName"));
+        }
+        taskTemplateVO.setContent(taskTemplateVOSingleContent);
+
+        return taskTemplateVO;
+
     }
 
     public TaskRecordQueryParam toQueryParam(TaskQueryRequest request){
