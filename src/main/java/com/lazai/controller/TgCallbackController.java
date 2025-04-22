@@ -12,6 +12,7 @@ import com.lazai.utils.TgValidatorUtils;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,11 +37,14 @@ public class TgCallbackController {
     @Autowired
     private TgService tgService;
 
+    @Value("${tg.bot.token}")
+    private String tgBotToken;
+
     @GetMapping("/auth")
     public String auth(@RequestParam Map<String, String> params) {
         String ethAddress = params.get("ethAddress");
         params.remove("ethAddress");
-        if (TgValidatorUtils.isTelegramAuthValid(new HashMap<>(params), "7630739495:AAFkS-EIvTZMiwQB7ZAa3LsYibQLx7Jh1r0")) {
+        if (TgValidatorUtils.isTelegramAuthValid(new HashMap<>(params), tgBotToken)) {
             // 登录成功
             User user = userRepository.findByEthAddress(ethAddress, false);
             if(user != null){
