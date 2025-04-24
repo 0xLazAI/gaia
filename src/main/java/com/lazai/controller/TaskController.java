@@ -56,6 +56,19 @@ public class TaskController {
         return JsonApiResponse.success(true);
     }
 
+    @PostMapping("/claim")
+    @ResultLog(name = "TaskController.claim", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> claim(@RequestBody TaskCreateRequest taskCreateRequest, HttpServletRequest request){
+        User loginUser = JWTUtils.getUser();
+        taskCreateRequest.setInnerUserId(loginUser.getId()+"");
+        RoleDTO operator = new RoleDTO();
+        operator.setId(loginUser.getId()+"");
+        operator.setName(loginUser.getName());
+        taskCreateRequest.setOperator(operator);
+        taskService.claimTask(taskCreateRequest);
+        return JsonApiResponse.success(true);
+    }
+
     @GetMapping("/userTaskRecords")
     @ResultLog(name = "TestController.userTaskRecords", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> userTaskRecords(@ModelAttribute TaskQueryRequest bizRequest, HttpServletRequest request){

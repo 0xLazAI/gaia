@@ -52,7 +52,7 @@ public class TaskEndPoint {
         operator.setId(loginUser.getId()+"");
         operator.setName(loginUser.getName());
         request.setOperator(operator);
-        taskService.createAndTriggerTask(request);
+        taskService.claimTask(request);
         return GraphQLResponse.success(true);
     }
 }

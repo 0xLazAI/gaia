@@ -5,18 +5,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lazai.biz.service.ActionHandler;
 import com.lazai.biz.service.TaskService;
-import com.lazai.entity.ScoreBalance;
-import com.lazai.entity.TaskAction;
-import com.lazai.entity.TaskRecord;
-import com.lazai.entity.TaskTemplate;
+import com.lazai.biz.service.TgSingleService;
+import com.lazai.entity.*;
 import com.lazai.entity.dto.*;
 import com.lazai.entity.vo.TaskRecordVO;
 import com.lazai.entity.vo.TaskTemplateVO;
 import com.lazai.exception.DomainException;
-import com.lazai.repostories.ScoreBalanceRepository;
-import com.lazai.repostories.TaskActionRepository;
-import com.lazai.repostories.TaskRecordRepository;
-import com.lazai.repostories.TaskTemplateRepository;
+import com.lazai.repostories.*;
 import com.lazai.request.TaskCreateRequest;
 import com.lazai.request.TaskQueryRequest;
 import com.lazai.request.TriggerTaskRequest;
@@ -52,6 +47,9 @@ public class TaskServiceImpl implements TaskService {
     private TaskTemplateRepository taskTemplateRepository;
 
     @Autowired
+    private TgSingleService tgSingleService;
+
+    @Autowired
     private SnowFlake snowFlake;
 
     @Autowired
@@ -59,6 +57,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private ScoreBalanceRepository scoreBalanceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private static final Logger ERROR_LOGGER = LoggerFactory.getLogger("ERROR_LOG");
 
@@ -241,6 +242,29 @@ public class TaskServiceImpl implements TaskService {
             });
         }
         return result;
+    }
+
+    public void verifyTaskDone(User user, JSONObject templateContext){
+
+        if("tgGroupJoin".equals(templateContext.getString("scoreType")) && StringUtils.isNotBlank(user.getTgId())){
+            Boolean isJoin = false;
+            isJoin = tgSingleService.ifUserInGroup(user.getTgId(), templateContext.getString("botToken"), templateContext.getString("groupId"));
+            if(!isJoin){
+                throw new DomainException("not join tg group!",403);
+            }
+        }
+    }
+
+    public void claimTask(TaskCreateRequest request){
+        TaskTemplate taskTemplate = taskTemplateRepository.selectByCode(request.getTemplateCode());
+        if(taskTemplate == null){
+            throw new DomainException("template not fund", 404);
+        }
+        User user = userRepository.findById(request.getInnerUserId(), false);
+        JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
+        JSONObject templateContext = templateContent.getJSONObject("context");
+        verifyTaskDone(user, templateContext);
+        createAndTriggerTask(request);
     }
 
     public void createAndTriggerTask(TaskCreateRequest request){

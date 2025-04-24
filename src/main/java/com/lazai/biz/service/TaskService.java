@@ -19,5 +19,7 @@ public interface TaskService {
 
     void createAndTriggerTask(TaskCreateRequest request);
 
+    void claimTask(TaskCreateRequest request);
+
     List<TaskTemplateVO> userTaskTemplatesUse(TaskQueryRequest taskQueryRequest);
 }

@@ -7,4 +7,5 @@ public interface TgService {
     JSONObject getUpdates();
 
     void handleGroupNewMembersTask();
+
 }

@@ -64,7 +64,7 @@ public class TgServiceImpl implements TgService {
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("api.telegram.org")
-                .addPathSegment("bot"+botToken)
+                .addPathSegment("bot" + botToken)
                 .addPathSegment("getUpdates")
                 .addQueryParameter("offset", offsetId)
                 .addQueryParameter("limit", "200")
@@ -80,7 +80,7 @@ public class TgServiceImpl implements TgService {
             response = okHttpClient.newCall(request).execute();
             if(response.code() != 200){
                 String responseStr = response.body().string();
-                throw new DomainException("http error",500);
+                throw new DomainException("http error, response:" + responseStr,500);
             }
             String responseStr = response.body().string();
             JSONObject responseObj = JSON.parseObject(responseStr);
@@ -171,8 +171,6 @@ public class TgServiceImpl implements TgService {
                 }
             }
         }while (!CollectionUtils.isEmpty(tgJoinGroupMembersList));
-
-        tgJoinGroupMembersRepository.queryList(tgJoinGroupMembersQueryParam);
     }
 
 }

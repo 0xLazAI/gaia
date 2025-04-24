@@ -60,6 +60,7 @@ type TaskTemplateUse{
 
 type TaskTemplateContent{
     dailyTimesLimit: Int
+    twitterName: String
 }
 
 type ScoreInfo{
