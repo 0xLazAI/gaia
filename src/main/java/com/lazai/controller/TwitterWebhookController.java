@@ -10,11 +10,13 @@ import com.lazai.repostories.UserRepository;
 import com.lazai.utils.JWTUtils;
 import com.lazai.utils.RedisUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -34,7 +36,7 @@ public class TwitterWebhookController {
 
 
     @GetMapping("/auth")
-    public JsonApiResponse<Object> authCodeHandle(@RequestParam("state") String state, @RequestParam("code") String code, HttpServletRequest request) {
+    public void authCodeHandle(@RequestParam("state") String state, @RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject tokenResult = twitterService.getTokenByCode(code);
         List<String> stateList = List.of(state.split(","));
         JSONObject me = twitterService.getMe(tokenResult.getString("access_token"));
@@ -45,7 +47,7 @@ public class TwitterWebhookController {
         userContent.put("twitterUserInfo", me.getJSONObject("data"));
         user.setContent(JSON.toJSONString(userContent));
         userRepository.updateById(user);
-        return JsonApiResponse.success(true);
+        response.sendRedirect("https://t.me/alithpointbot/TestCorruptedAlithMission?startapp=jump=mission");
     }
 
 //    @GetMapping
