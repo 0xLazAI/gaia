@@ -73,6 +73,9 @@ public class TwitterServiceImpl implements TwitterService {
     @Value("${clientId}")
     private String clientId;
 
+    @Value("${twitter.auth.redirect-uri}")
+    private String twitterAuthRedirectUri;
+
     private static final Logger ERROR_LOGGER = LoggerFactory.getLogger("ERROR_LOG");
 
 
@@ -129,7 +132,7 @@ public class TwitterServiceImpl implements TwitterService {
                 .addQueryParameter("grant_type", "authorization_code")
                 .addQueryParameter("code_verifier", "challenge")
                 .addQueryParameter("code", code)
-                .addQueryParameter("redirect_uri", "http://localhost:8080/twitter/webhook/auth")
+                .addQueryParameter("redirect_uri", twitterAuthRedirectUri)
                 .build();
 
         Request request = new Request.Builder()
