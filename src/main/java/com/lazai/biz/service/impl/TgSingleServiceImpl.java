@@ -1,7 +1,6 @@
 package com.lazai.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lazai.biz.service.TgSingleService;
 import com.lazai.exception.DomainException;
@@ -14,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
+/**
+ * @see TgSingleService
+ */
 @Service
 public class TgSingleServiceImpl implements TgSingleService {
 
@@ -24,6 +25,9 @@ public class TgSingleServiceImpl implements TgSingleService {
     @Autowired
     private OkHttpClient okHttpClient;
 
+    /**
+     * @see TgSingleService#ifUserInGroup 
+     */
     public Boolean ifUserInGroup(String tgId, String botToken, String groupId){
         String inGroupCacheRt = RedisUtils.get("in_tg_group_" + botToken + "_user_" + tgId);
         if("1".equals(inGroupCacheRt)){

@@ -10,6 +10,10 @@ import com.lazai.entity.*;
 import com.lazai.entity.dto.*;
 import com.lazai.entity.vo.TaskRecordVO;
 import com.lazai.entity.vo.TaskTemplateVO;
+import com.lazai.enums.TaskActionStatusEnum;
+import com.lazai.enums.TaskRecordNodeStatusEnum;
+import com.lazai.enums.TaskStatusEnum;
+import com.lazai.enums.TaskTemplateProcessTypeEnum;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.*;
 import com.lazai.request.TaskCreateRequest;
@@ -31,6 +35,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @see TaskService
+ */
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -65,8 +72,10 @@ public class TaskServiceImpl implements TaskService {
 
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
-
+    /**
+     * @see TaskService#createTask(TaskCreateRequest)
+     */
+    @Override
     public String createTask(TaskCreateRequest request){
         return transactionTemplateCommon.execute(transactionStatus -> {
             TaskTemplate taskTemplate = taskTemplateRepository.selectByCode(request.getTemplateCode());
@@ -74,12 +83,12 @@ public class TaskServiceImpl implements TaskService {
                 throw new DomainException("template not fund", 404);
             }
             JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
-            if("ONCE".equals(taskTemplate.getProcessType())){
+            if(TaskTemplateProcessTypeEnum.ONCE.value().equals(taskTemplate.getProcessType())){
                 TaskRecordQueryParam taskRecordQueryParamTmp = new TaskRecordQueryParam();
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList(TaskStatusEnum.INIT.value(), TaskStatusEnum.PROCESSING.value(),TaskStatusEnum.FINISH.value()));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 List<TaskRecord> existsTask = taskRecordRepository.queryList(taskRecordQueryParamTmp);
                 if(!CollectionUtils.isEmpty(existsTask)){
@@ -87,12 +96,12 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
 
-            if("DAILY".equals(taskTemplate.getProcessType())){
+            if(TaskTemplateProcessTypeEnum.DAILY.value().equals(taskTemplate.getProcessType())){
                 TaskRecordQueryParam taskRecordQueryParamTmp = new TaskRecordQueryParam();
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList(TaskStatusEnum.INIT.value(), TaskStatusEnum.PROCESSING.value(),TaskStatusEnum.FINISH.value()));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 taskRecordQueryParamTmp.setCreatedStart(DateUtils.getStartOfToday());
                 taskRecordQueryParamTmp.setCreatedEnd(DateUtils.getEndOfToday());
@@ -102,18 +111,23 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
 
-            if("DAILY_TIMES".equals(taskTemplate.getProcessType())){
+            if(TaskTemplateProcessTypeEnum.DAILY_TIMES.value().equals(taskTemplate.getProcessType())){
                 TaskRecordQueryParam taskRecordQueryParamTmp = new TaskRecordQueryParam();
                 taskRecordQueryParamTmp.setInnerUser(request.getInnerUserId());
                 taskRecordQueryParamTmp.setOuterUser(request.getOuterUserId());
                 taskRecordQueryParamTmp.setApp(request.getApp());
-                taskRecordQueryParamTmp.setStatusList(Arrays.asList("processing","finish"));
+                taskRecordQueryParamTmp.setStatusList(Arrays.asList(TaskStatusEnum.INIT.value(), TaskStatusEnum.PROCESSING.value(),TaskStatusEnum.FINISH.value()));
                 taskRecordQueryParamTmp.setTaskTemplateId(taskTemplate.getTemplateCode());
                 taskRecordQueryParamTmp.setCreatedStart(DateUtils.getStartOfToday());
                 taskRecordQueryParamTmp.setCreatedEnd(DateUtils.getEndOfToday());
                 List<TaskRecord> existsTask = taskRecordRepository.queryList(taskRecordQueryParamTmp);
                 if(!CollectionUtils.isEmpty(existsTask) && existsTask.size() >= templateContent.getJSONObject("context").getInteger("dailyTimes")){
-                   throw new DomainException("This task can only be triggered " + templateContent.getJSONObject("context").getInteger("dailyTimes") + " times a day. ",403);
+                   List<TaskRecord> processingTask = existsTask.stream().filter(a->!a.getStatus().equals(TaskStatusEnum.FINISH.value())).toList();
+                   if(CollectionUtils.isEmpty(processingTask)){
+                       throw new DomainException("This task can only be triggered " + templateContent.getJSONObject("context").getInteger("dailyTimes") + " times a day. ",403);
+                   }else{
+                       return processingTask.get(0).getTaskNo();
+                   }
                 }
             }
 
@@ -130,7 +144,7 @@ public class TaskServiceImpl implements TaskService {
                     taskActionSingle.setActionName("");
                     taskActionSingle.setBizNo(taskNo);
                     taskActionSingle.setBizType("task");
-                    taskActionSingle.setStatus("init");
+                    taskActionSingle.setStatus(TaskActionStatusEnum.INIT.value());
                     taskActionSingle.setRunType(actionSingle.getString("runType"));
                     taskActionSingle.setActionHandler(actionSingle.getString("actionHandler"));
                     taskActionSingle.setOperator(request.getOperator().getId());
@@ -151,6 +165,10 @@ public class TaskServiceImpl implements TaskService {
         });
     }
 
+    /**
+     * @see TaskService#triggerTask
+     */
+    @Override
     public JSONObject triggerTask(TriggerTaskRequest request){
         JSONObject result = new JSONObject();
         result.put("isTaskFinish", false);
@@ -158,13 +176,13 @@ public class TaskServiceImpl implements TaskService {
         if(taskRecord[0] == null){
             throw new DomainException("task not found",404);
         }
-        if(taskRecord[0].getStatus().equals("finish")){
+        if(taskRecord[0].getStatus().equals(TaskStatusEnum.FINISH.value())){
             result.put("isTaskFinish", true);
             return result;
         }
         JSONObject taskRecordContent = JSON.parseObject(taskRecord[0].getContent());
         List<TaskRecordNodeDTO> taskRecordNodeDTOList = JSON.parseArray(taskRecordContent.getString("nodes"), TaskRecordNodeDTO.class);
-        List<TaskRecordNodeDTO> notProcessNodes = taskRecordNodeDTOList.stream().filter(a->!a.getStatus().equals("finish")).toList();
+        List<TaskRecordNodeDTO> notProcessNodes = taskRecordNodeDTOList.stream().filter(a->!a.getStatus().equals(TaskRecordNodeStatusEnum.FINISH.value())).toList();
         Boolean isFinalNode = false;
         if(notProcessNodes.size() == 1){
             isFinalNode = true;
@@ -178,7 +196,7 @@ public class TaskServiceImpl implements TaskService {
         if(currentNode != null){
             transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
                 taskRecord[0] = taskRecordRepository.selectByTaskNo(request.getTaskNo(), true);
-                currentNode.setStatus("processing");
+                currentNode.setStatus(TaskRecordNodeStatusEnum.PROCESSING.value());
                 taskRecordContent.put("nodes", taskRecordNodeDTOList);
                 taskRecord[0].setContent(JSON.toJSONString(taskRecordContent));
                 taskRecordRepository.updateByTaskNo(taskRecord[0]);
@@ -190,7 +208,7 @@ public class TaskServiceImpl implements TaskService {
                     JSONObject taskContent = JSON.parseObject(taskRecord[0].getContent());
                     for(TaskAction actionSingle:taskActions){
                         final ActionHandler[] actionHandler = {null};
-                        if(actionSingle.getStatus().equals("finish")){
+                        if(actionSingle.getStatus().equals(TaskActionStatusEnum.FINISH.value())){
                             continue;
                         }
                         if("local".equals(actionSingle.getRunType())){
@@ -204,7 +222,7 @@ public class TaskServiceImpl implements TaskService {
                                         if(triggerResult!=null){
                                             JsonUtils.mergeJsonObjects(taskContent, triggerResult);
                                         }
-                                        actionSingle.setStatus("finish");
+                                        actionSingle.setStatus(TaskActionStatusEnum.FINISH.value());
                                         taskActionRepository.updateById(actionSingle);
                                     }catch (Throwable e){
                                         ERROR_LOGGER.error("trigger action error", e);
@@ -212,7 +230,7 @@ public class TaskServiceImpl implements TaskService {
                                     }
                                 });
                             }catch (Throwable e){
-                                actionSingle.setStatus("error");
+                                actionSingle.setStatus(TaskActionStatusEnum.ERROR.value());
                                 taskActionRepository.updateById(actionSingle);
                                 throw e;
                             }
@@ -222,7 +240,7 @@ public class TaskServiceImpl implements TaskService {
                     }
                     transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
                         taskRecord[0] = taskRecordRepository.selectByTaskNo(request.getTaskNo(), true);
-                        currentNode.setStatus("finish");
+                        currentNode.setStatus(TaskRecordNodeStatusEnum.FINISH.value());
                         taskRecordContent.put("nodes", taskRecordNodeDTOList);
                         taskRecord[0].setContent(JSON.toJSONString(taskRecordContent));
                         taskRecordRepository.updateByTaskNo(taskRecord[0]);
@@ -237,13 +255,18 @@ public class TaskServiceImpl implements TaskService {
             result.put("isTaskFinish", true);
             transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
                 taskRecord[0] = taskRecordRepository.selectByTaskNo(request.getTaskNo(), true);
-                taskRecord[0].setStatus("finish");
+                taskRecord[0].setStatus(TaskStatusEnum.FINISH.value());
                 taskRecordRepository.updateByTaskNo(taskRecord[0]);
             });
         }
         return result;
     }
 
+    /**
+     * verify task is done
+     * @param user
+     * @param templateContext
+     */
     public void verifyTaskDone(User user, JSONObject templateContext){
 
         if("tgGroupJoin".equals(templateContext.getString("scoreType")) && StringUtils.isNotBlank(user.getTgId())){
@@ -255,6 +278,10 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    /**
+     * @see TaskService#claimTask
+     */
+    @Override
     public void claimTask(TaskCreateRequest request){
         TaskTemplate taskTemplate = taskTemplateRepository.selectByCode(request.getTemplateCode());
         if(taskTemplate == null){
@@ -267,6 +294,10 @@ public class TaskServiceImpl implements TaskService {
         createAndTriggerTask(request);
     }
 
+    /**
+     * @see TaskService#createAndTriggerTask
+     */
+    @Override
     public void createAndTriggerTask(TaskCreateRequest request){
             String taskNo = createTask(request);
             TriggerTaskRequest triggerTaskRequest = new TriggerTaskRequest();
@@ -275,7 +306,10 @@ public class TaskServiceImpl implements TaskService {
             triggerTask(triggerTaskRequest);
     }
 
-
+    /**
+     * @see TaskService#userTaskRecords
+     */
+    @Override
     public List<TaskRecordVO> userTaskRecords(TaskQueryRequest taskQueryRequest){
         TaskRecordQueryParam taskRecordQueryParam = toQueryParam(taskQueryRequest);
         List<TaskRecord> taskRecords = taskRecordRepository.queryList(taskRecordQueryParam);
@@ -300,6 +334,10 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
+    /**
+     * @see TaskService#userTaskTemplatesUse
+     */
+    @Override
     public List<TaskTemplateVO> userTaskTemplatesUse(TaskQueryRequest taskQueryRequest){
         List<TaskTemplateVO> result = new ArrayList<>();
         TaskRecordQueryParam taskRecordQueryParam = toQueryParam(taskQueryRequest);
@@ -311,17 +349,17 @@ public class TaskServiceImpl implements TaskService {
         if(!CollectionUtils.isEmpty(taskRecords)){
             for(TaskRecord taskRecord:taskRecords){
                 TaskTemplateVO taskTemplateVOSingle = taskTemplateVOMap.get(taskRecord.getTaskTemplateId());;
-                if("ONCE".equals(taskTemplateVOSingle.getTaskType())){
+                if(TaskTemplateProcessTypeEnum.ONCE.value().equals(taskTemplateVOSingle.getTaskType())){
                     taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
-                    if("finish".equals(taskRecord.getStatus())){
+                    if(TaskStatusEnum.FINISH.value().equals(taskRecord.getStatus())){
                         taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                     }
-                }else if("DAILY".equals(taskTemplateVOSingle.getTaskType()) || "DAILY_TIMES".equals(taskTemplateVOSingle.getTaskType())){
+                }else if(TaskTemplateProcessTypeEnum.DAILY.value().equals(taskTemplateVOSingle.getTaskType()) || TaskTemplateProcessTypeEnum.DAILY_TIMES.value().equals(taskTemplateVOSingle.getTaskType())){
                    Date endOfToday = DateUtils.getEndOfToday();
                    Date startOfToday = DateUtils.getStartOfToday();
                    if(taskRecord.getCreatedAt().getTime() <= endOfToday.getTime() && taskRecord.getCreatedAt().getTime() >= startOfToday.getTime()){
                        taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
-                       if("finish".equals(taskRecord.getStatus())){
+                       if(TaskStatusEnum.FINISH.value().equals(taskRecord.getStatus())){
                            taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                        }
                    }
@@ -333,6 +371,11 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
+    /**
+     * to TaskTemplateVO
+     * @param taskTemplate
+     * @return
+     */
     public TaskTemplateVO toTaskTemplateVO(TaskTemplate taskTemplate){
         TaskTemplateVO taskTemplateVO = new TaskTemplateVO();
 
@@ -343,7 +386,7 @@ public class TaskServiceImpl implements TaskService {
         taskTemplateVO.setTaskCount(0);
         JSONObject taskTemplateVOSingleContent = new JSONObject();
         JSONObject templateContent = JSON.parseObject(taskTemplate.getContent());
-        if("DAILY".equals(taskTemplate.getProcessType()) || "DAILY_TIMES".equals(taskTemplate.getProcessType())){
+        if(TaskTemplateProcessTypeEnum.DAILY.value().equals(taskTemplate.getProcessType()) || TaskTemplateProcessTypeEnum.DAILY_TIMES.value().equals(taskTemplate.getProcessType())){
             if(templateContent.getJSONObject("context").getInteger("dailyTimes") != null){
                 taskTemplateVOSingleContent.put("dailyTimesLimit", templateContent.getJSONObject("context").getInteger("dailyTimes"));
             }
@@ -357,6 +400,11 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    /**
+     * convert to TaskRecordQueryParam
+     * @param request
+     * @return
+     */
     public TaskRecordQueryParam toQueryParam(TaskQueryRequest request){
         TaskRecordQueryParam taskRecordQueryParam = new TaskRecordQueryParam();
         taskRecordQueryParam.setCreatedStart(request.getCreatedStartAt());
@@ -371,9 +419,18 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    /**
+     * convert to TaskRecord
+     * @param taskNo
+     * @param taskCreateRequest
+     * @param taskRecordNodeDTOList
+     * @param contextTemp
+     * @param taskTemplate
+     * @return
+     */
     public TaskRecord convertToTaskRecord(String taskNo, TaskCreateRequest taskCreateRequest, List<TaskRecordNodeDTO> taskRecordNodeDTOList, JSONObject contextTemp, TaskTemplate taskTemplate){
         TaskRecord taskRecord = new TaskRecord();
-        taskRecord.setStatus("processing");
+        taskRecord.setStatus(TaskStatusEnum.PROCESSING.value());
         taskRecord.setTaskNo(taskNo);
         taskRecord.setTaskTemplateId(taskCreateRequest.getTemplateCode());
         JSONObject content = new JSONObject();
@@ -393,6 +450,11 @@ public class TaskServiceImpl implements TaskService {
         return taskRecord;
     }
 
+    /**
+     * to TaskRecordVO list
+     * @param taskRecords
+     * @return
+     */
     public List<TaskRecordVO> toTaskRecordVOs(List<TaskRecord> taskRecords){
         List<TaskRecordVO> result = new ArrayList<>();
         if(!CollectionUtils.isEmpty(taskRecords)){
@@ -404,6 +466,11 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
+    /**
+     * to TaskRecordVO
+     * @param taskRecord
+     * @return
+     */
     public  TaskRecordVO toTaskRecordVO(TaskRecord taskRecord){
         TaskRecordVO taskRecordVO = new TaskRecordVO();
         taskRecordVO.setId(taskRecord.getId());
@@ -426,6 +493,11 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    /**
+     * convert to TaskRecordNodeDTO
+     * @param taskTemplateNodeDTO
+     * @return
+     */
     public static TaskRecordNodeDTO convertToTaskRecordNodeDTO(TaskTemplateNodeDTO taskTemplateNodeDTO){
         TaskRecordNodeDTO taskRecordNodeDTO = new TaskRecordNodeDTO();
         taskRecordNodeDTO.setOrgType(taskTemplateNodeDTO.getOrgType());
@@ -438,15 +510,20 @@ public class TaskServiceImpl implements TaskService {
         taskRecordNodeDTO.setContent(taskTemplateNodeDTO.getContent());
         List<JSONObject> actions = taskTemplateNodeDTO.getActions();
         for(JSONObject actionSingle: actions){
-            actionSingle.put("status","init");
+            actionSingle.put("status",TaskActionStatusEnum.INIT.value());
         }
         taskRecordNodeDTO.setActions(actions);
         JSONObject context = new JSONObject();
         taskRecordNodeDTO.setContext(context);
-        taskRecordNodeDTO.setStatus("init");
+        taskRecordNodeDTO.setStatus(TaskRecordNodeStatusEnum.INIT.value());
         return taskRecordNodeDTO;
     }
 
+    /**
+     * convert to TaskRecordNodeDTO list
+     * @param taskTemplateNodeDTOList
+     * @return
+     */
     public static List<TaskRecordNodeDTO> convertToTaskRecordNodeDTOList(List<TaskTemplateNodeDTO> taskTemplateNodeDTOList){
         List<TaskRecordNodeDTO> result = new ArrayList<>();
         if(CollectionUtils.isEmpty(taskTemplateNodeDTOList)){

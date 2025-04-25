@@ -10,12 +10,19 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 
+/**
+ * Add score action handler
+ */
 @Service
 public class AddScoreActionHandler implements ActionHandler {
 
     @Autowired
     private ScoreBalanceService scoreBalanceService;
 
+    /**
+     * add score from context
+     * @see ActionHandler#handle(JSONObject)
+     */
     @Override
     public JSONObject handle(JSONObject context) {
         String userId = context.getString("innerUserId");

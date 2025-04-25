@@ -12,32 +12,60 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @see TaskTemplateService
+ */
 @Service
 public class TaskTemplateServiceImpl implements TaskTemplateService {
 
     @Autowired
     private TaskTemplateRepository taskTemplateRepository;
 
+    /**
+     * @see TaskTemplateService#createTaskTemplate
+     */
+    @Override
     public void createTaskTemplate(TaskTemplateCreateRequest taskTemplateCreateRequest){
         taskTemplateRepository.insert(convertTaskTemplateCreateRequestToTaskTemplate(taskTemplateCreateRequest));
     }
 
+    /**
+     * @see TaskTemplateService#taskTemplateList
+     */
+    @Override
     public List<TaskTemplate> taskTemplateList(TaskTemplateListQueryRequest request){
         return taskTemplateRepository.queryList(convertToTaskTemplateQueryParam(request));
     }
 
+    /**
+     * @see TaskTemplateService#updateByCode
+     */
+    @Override
     public void updateByCode(TaskTemplateCreateRequest request){
         taskTemplateRepository.updateByCode(convertTaskTemplateCreateRequestToTaskTemplate(request));
     }
 
+    /**
+     * @see TaskTemplateService#selectByCode
+     */
+    @Override
     public TaskTemplate selectByCode(String templateCode){
         return taskTemplateRepository.selectByCode(templateCode);
     }
 
+    /**
+     * @see TaskTemplateService#pageQueryList
+     */
+    @Override
     public CommonPageResult<TaskTemplate> pageQueryList(TaskTemplateListQueryRequest request){
         return taskTemplateRepository.pageQueryList(convertToTaskTemplateQueryParam(request));
     }
 
+    /**
+     * convert to TaskTemplate
+     * @param request
+     * @return
+     */
     public static TaskTemplate convertTaskTemplateCreateRequestToTaskTemplate(TaskTemplateCreateRequest request){
         TaskTemplate taskTemplate = new TaskTemplate();
         taskTemplate.setTemplateCode(request.getTemplateCode());
@@ -49,6 +77,11 @@ public class TaskTemplateServiceImpl implements TaskTemplateService {
         return taskTemplate;
     }
 
+    /**
+     * convert to TaskTemplateQueryParam
+     * @param request
+     * @return
+     */
     public static TaskTemplateQueryParam convertToTaskTemplateQueryParam(TaskTemplateListQueryRequest request){
         TaskTemplateQueryParam taskTemplateQueryParam = new TaskTemplateQueryParam();
         taskTemplateQueryParam.setStatus(request.getStatus());

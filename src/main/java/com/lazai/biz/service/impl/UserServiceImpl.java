@@ -22,6 +22,9 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * @see UserService
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -31,6 +34,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserScoreRepository userScoreRepository;
 
+    /**
+     * @see UserService#getById
+     */
     @Override
     public UserVO getById(String id){
         User userInfo =  userRepository.findById(id, false);
@@ -41,10 +47,18 @@ public class UserServiceImpl implements UserService {
         return toUserVO(userInfo,userScore);
     }
 
+    /**
+     * @see UserService#createUser
+     */
+    @Override
     public String createUser(UserCreateRequest request){
         return userRepository.insert(convertCreateUserRequestToUserEntity(request));
     }
 
+    /**
+     * @see UserService#createUserAndLogin
+     */
+    @Override
     public JSONObject createUserAndLogin(UserCreateRequest request){
         User user = convertCreateUserRequestToUserEntity(request);
         String userId = userRepository.insert(user);
@@ -55,6 +69,10 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    /**
+     * @see UserService#createAndLoginByTgInfo
+     */
+    @Override
     public JSONObject createAndLoginByTgInfo(UserLoginByTgRequest userLoginByTgRequest){
         JSONObject result = new JSONObject();
         User user = userRepository.findByTgId(userLoginByTgRequest.getTgId());
@@ -80,6 +98,10 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    /**
+     * @see UserService#login
+     */
+    @Override
     public JSONObject login(LoginRequest request){
         User user = userRepository.findByEthAddress(request.getEthAddress(), false);
         JSONObject result = new JSONObject();
@@ -98,6 +120,10 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    /**
+     * @see UserService#loginWithEthAddress
+     */
+    @Override
     public JSONObject loginWithEthAddress(LoginRequest request){
         String storedNonce = RedisUtils.get("NONCE_ON_ADDRESS_" + request.getEthAddress());
         if(StringUtils.isBlank(storedNonce)){
@@ -128,6 +154,10 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    /**
+     * @see UserService#bindUserEthAddress
+     */
+    @Override
     public void bindUserEthAddress(BindUserEthRequest request){
         String storedNonce = RedisUtils.get("NONCE_ON_ADDRESS_" + request.getEthAddress());
         if(StringUtils.isBlank(storedNonce)){
@@ -152,6 +182,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * @see UserService#getNonce
+     */
+    @Override
     public String getNonce(String address) {
         if(!StringUtils.isBlank(RedisUtils.get("NONCE_ON_ADDRESS_" + address))){
             return RedisUtils.get("NONCE_ON_ADDRESS_" + address);
@@ -162,6 +196,10 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    /**
+     * @see UserService#updateById
+     */
+    @Override
     public Integer updateById(UserCreateRequest request){
         User existsUser = userRepository.findByEthAddress(request.getEthAddress(),false);
         if(existsUser == null){
@@ -172,10 +210,18 @@ public class UserServiceImpl implements UserService {
         return userRepository.updateById(user);
     }
 
+    /**
+     * @see UserService#findByXId
+     */
+    @Override
     public User findByXId(String xId){
         return userRepository.findByXId(xId);
     }
 
+    /**
+     * @see UserService#updateByEthAddress
+     */
+    @Override
     public Integer updateByEthAddress(UserCreateRequest request){
         User existsUser = userRepository.findByEthAddress(request.getEthAddress(), false);
         if(existsUser == null){
@@ -185,6 +231,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.updateByEthAddress(user);
     }
 
+    /**
+     * convert to User
+     * @param request
+     * @return
+     */
     public static User convertCreateUserRequestToUserEntity(UserCreateRequest request){
         User user = new User();
         user.setName(request.getName());
@@ -194,6 +245,12 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * convert to UserVO
+     * @param user
+     * @param userScore
+     * @return
+     */
     public UserVO toUserVO(User user, UserScore userScore){
         UserVO userVO = new UserVO();
         userVO.setId(user.getId());

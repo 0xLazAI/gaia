@@ -43,7 +43,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
 
-
+/**
+ * @see TwitterService
+ */
 @Service
 public class TwitterServiceImpl implements TwitterService {
 
@@ -78,6 +80,11 @@ public class TwitterServiceImpl implements TwitterService {
 
     public static String X_FOCUS_USER_PREFIX = "x_focus_user_";
 
+
+    /**
+     * @see TwitterService#checkFollowers
+     */
+    @Override
     //@Scheduled(fixedRate = 60000) // 每1分钟检查一次
     public void checkFollowers() {
 //        oauth.consumerKey=wyL8ysC4LMQpLGwNXTvFjAACp
@@ -95,11 +102,19 @@ public class TwitterServiceImpl implements TwitterService {
 
     }
 
+    /**
+     * @see TwitterService#getUserByUsername
+     */
+    @Override
     public Map<String, Object> getUserByUsername(String username) {
         String url = "https://api.twitter.com/2/users/by/username/" + username;
         return twitterRestTemplate.getForObject(url, Map.class);
     }
 
+    /**
+     * @see TwitterService#getTokenByCode
+     */
+    @Override
     public JSONObject getTokenByCode(String code){
         okhttp3.MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
         RequestBody body = RequestBody.create("",mediaType);
@@ -139,6 +154,10 @@ public class TwitterServiceImpl implements TwitterService {
         return result;
     }
 
+    /**
+     * @see TwitterService#getMe
+     */
+    @Override
     public JSONObject getMe(String token){
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
@@ -181,7 +200,7 @@ public class TwitterServiceImpl implements TwitterService {
         User user = userService.findByXId(id+"");
         if(user != null){
             TaskRecordQueryParam taskRecordQueryParam = new TaskRecordQueryParam();
-            taskRecordQueryParam.setStatusList(Collections.singletonList(TaskStatusEnum.ACTIVE.value()));
+            taskRecordQueryParam.setStatusList(Collections.singletonList(TaskStatusEnum.PROCESSING.value()));
             taskRecordQueryParam.setTaskTemplateId("twitterFocusLazAI");
             taskRecordQueryParam.setInnerUser(user.getId()+"");
             taskRecordQueryParam.setApp("gaia");
@@ -201,6 +220,10 @@ public class TwitterServiceImpl implements TwitterService {
         }
     }
 
+    /**
+     * @see TwitterService#bindTwitterUserInfo
+     */
+    @Override
     public void bindTwitterUserInfo(BindTwitterUserInfoRequest request){
         JSONObject tokenResult = getTokenByCode(request.getCode());
         JSONObject me = getMe(tokenResult.getString("access_token"));

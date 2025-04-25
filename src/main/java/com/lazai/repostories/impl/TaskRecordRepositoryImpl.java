@@ -2,6 +2,7 @@ package com.lazai.repostories.impl;
 
 import com.lazai.entity.TaskRecord;
 import com.lazai.entity.dto.TaskRecordQueryParam;
+import com.lazai.enums.TaskStatusEnum;
 import com.lazai.enums.TaskTemplateStatus;
 import com.lazai.mapper.TaskRecordMapper;
 import com.lazai.repostories.TaskRecordRepository;
@@ -26,7 +27,7 @@ public class TaskRecordRepositoryImpl implements TaskRecordRepository {
             taskRecord.setUpdatedAt(new Date());
         }
         if(StringUtils.isEmpty(taskRecord.getStatus())){
-            taskRecord.setStatus(TaskTemplateStatus.ACTIVE.value());
+            taskRecord.setStatus(TaskStatusEnum.INIT.value());
         }
         if (StringUtils.isEmpty(taskRecord.getOperator())) {
             taskRecord.setOperator(taskRecord.getCreator());

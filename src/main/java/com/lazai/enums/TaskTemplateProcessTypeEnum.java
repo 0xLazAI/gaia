@@ -1,17 +1,16 @@
 package com.lazai.enums;
 
-public enum TaskStatusEnum {
+public enum TaskTemplateProcessTypeEnum {
 
-    PROCESSING("processing", ""),
-    FINISH("finish", ""),
-    INIT("init", ""),
-
+    ONCE("ONCE", ""),
+    DAILY("DAILY", ""),
+    DAILY_TIMES("DAILY_TIMES", ""),
     ;
 
     private final String value;
     private final String desc;
 
-    TaskStatusEnum(String value, String desc) {
+    TaskTemplateProcessTypeEnum(String value, String desc) {
         this.value = value;
         this.desc = desc;
     }
@@ -22,8 +21,8 @@ public enum TaskStatusEnum {
 
     public String desc() {return this.desc;}
 
-    public static TaskStatusEnum getByValue(String value){
-        for(TaskStatusEnum result:values()){
+    public static TaskTemplateProcessTypeEnum getByValue(String value){
+        for(TaskTemplateProcessTypeEnum result:values()){
             if(value.equals(result.value)){
                 return result;
             }
@@ -31,8 +30,8 @@ public enum TaskStatusEnum {
         return null;
     }
 
-    public static TaskStatusEnum getByDesc(String desc){
-        for(TaskStatusEnum result:values()){
+    public static TaskTemplateProcessTypeEnum getByDesc(String desc){
+        for(TaskTemplateProcessTypeEnum result:values()){
             if(desc.equals(result.desc)){
                 return result;
             }

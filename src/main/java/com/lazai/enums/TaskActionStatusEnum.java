@@ -1,17 +1,17 @@
 package com.lazai.enums;
 
-public enum TaskStatusEnum {
+public enum TaskActionStatusEnum {
 
     PROCESSING("processing", ""),
     FINISH("finish", ""),
     INIT("init", ""),
-
+    ERROR("error", ""),
     ;
 
     private final String value;
     private final String desc;
 
-    TaskStatusEnum(String value, String desc) {
+    TaskActionStatusEnum(String value, String desc) {
         this.value = value;
         this.desc = desc;
     }
@@ -22,8 +22,8 @@ public enum TaskStatusEnum {
 
     public String desc() {return this.desc;}
 
-    public static TaskStatusEnum getByValue(String value){
-        for(TaskStatusEnum result:values()){
+    public static TaskActionStatusEnum getByValue(String value){
+        for(TaskActionStatusEnum result:values()){
             if(value.equals(result.value)){
                 return result;
             }
@@ -31,8 +31,8 @@ public enum TaskStatusEnum {
         return null;
     }
 
-    public static TaskStatusEnum getByDesc(String desc){
-        for(TaskStatusEnum result:values()){
+    public static TaskActionStatusEnum getByDesc(String desc){
+        for(TaskActionStatusEnum result:values()){
             if(desc.equals(result.desc)){
                 return result;
             }

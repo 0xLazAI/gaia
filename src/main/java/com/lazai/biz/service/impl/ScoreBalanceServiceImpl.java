@@ -18,6 +18,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
+/**
+ * @see ScoreBalanceService
+ */
 @Service
 public class ScoreBalanceServiceImpl implements ScoreBalanceService {
 
@@ -33,6 +36,10 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * @see ScoreBalanceService#searchByUser
+     */
+    @Override
     public List<ScoreBalance> searchByUser(String ethAddress){
         User userInfo = userRepository.findByEthAddress(ethAddress, false);
         if(userInfo == null){
@@ -41,6 +48,10 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
         return scoreBalanceRepository.searchByUser(userInfo.getId());
     }
 
+    /**
+     * @see ScoreBalanceService#addUserScore
+     */
+    @Override
     public void addUserScore(ScoreAddRequest scoreAddRequest){
         transactionTemplateCommon.executeWithoutResult(status -> {
             User userInfo = null;
@@ -74,6 +85,11 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
 
     }
 
+    /**
+     * convert to ScoreBalance
+     * @param scoreAddRequest
+     * @return
+     */
     public static ScoreBalance convertScoreAddRequestToScoreBalance(ScoreAddRequest scoreAddRequest){
         ScoreBalance scoreBalance = new ScoreBalance();
         scoreBalance.setScore(scoreAddRequest.getScore());
