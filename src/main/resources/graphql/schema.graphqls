@@ -56,12 +56,19 @@ type TaskTemplateUse{
     taskCount: String
     taskType: String
     content: TaskTemplateContent
+    context: TaskTemplateContext
 }
 
 type TaskTemplateContent{
     dailyTimesLimit: Int
     twitterName: String
 }
+
+type TaskTemplateContext{
+    scoreType: String
+    score: String
+}
+
 
 type ScoreInfo{
     createdAt: String

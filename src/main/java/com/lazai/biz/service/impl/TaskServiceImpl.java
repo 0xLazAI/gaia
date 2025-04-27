@@ -395,7 +395,7 @@ public class TaskServiceImpl implements TaskService {
             taskTemplateVOSingleContent.put("twitterName", templateContent.getJSONObject("context").getString("twitterName"));
         }
         taskTemplateVO.setContent(taskTemplateVOSingleContent);
-
+        taskTemplateVO.setContext(templateContent.getJSONObject("context"));
         return taskTemplateVO;
 
     }

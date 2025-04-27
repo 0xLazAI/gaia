@@ -21,6 +21,16 @@ public class TaskTemplateVO implements Serializable {
 
     private JSONObject content;
 
+    private JSONObject context;
+
+    public JSONObject getContext() {
+        return context;
+    }
+
+    public void setContext(JSONObject context) {
+        this.context = context;
+    }
+
     public JSONObject getContent() {
         return content;
     }
