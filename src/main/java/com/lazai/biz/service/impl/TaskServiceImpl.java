@@ -474,7 +474,6 @@ public class TaskServiceImpl implements TaskService {
     public  TaskRecordVO toTaskRecordVO(TaskRecord taskRecord){
         TaskRecordVO taskRecordVO = new TaskRecordVO();
         taskRecordVO.setId(taskRecord.getId());
-        taskRecordVO.setTaskName(taskRecord.getTaskTemplateId());
         taskRecordVO.setTaskNo(taskRecord.getTaskNo());
         taskRecordVO.setTaskTemplateId(taskRecord.getTaskTemplateId());
         taskRecordVO.setContent(taskRecord.getContent());
@@ -488,8 +487,8 @@ public class TaskServiceImpl implements TaskService {
         taskRecordVO.setInnerUser(taskRecord.getInnerUser());
         taskRecordVO.setOuterUser(taskRecord.getOuterUser());
         taskRecordVO.setApp(taskRecord.getApp());
-        JSONObject contentObj = JSON.parseObject(taskRecord.getContent());
-        //taskRecordVO.setTaskName(contentObj.getString("taskName"));
+        JSONObject contextObj = JSON.parseObject(taskRecord.getContext());
+        taskRecordVO.setTaskName(contextObj.getString("taskName"));
         return taskRecordVO;
 
     }
