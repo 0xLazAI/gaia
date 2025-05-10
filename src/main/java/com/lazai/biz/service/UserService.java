@@ -80,6 +80,12 @@ public interface UserService {
     void bindUserEthAddress(BindUserEthRequest request);
 
     /**
+     * bind user eth address simple
+     * @param request
+     */
+    void bindEthAddressSimple(BindEthAddressRequest request);
+
+    /**
      * get nonce
      * @param address
      * @return

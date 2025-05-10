@@ -13,6 +13,7 @@ import com.lazai.enums.TaskStatusEnum;
 import com.lazai.exception.DomainException;
 import com.lazai.repostories.TaskRecordRepository;
 import com.lazai.repostories.UserRepository;
+import com.lazai.request.BindEthAddressRequest;
 import com.lazai.request.BindTwitterUserInfoRequest;
 import com.lazai.request.TaskCreateRequest;
 import com.lazai.utils.JWTUtils;

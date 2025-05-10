@@ -415,7 +415,7 @@ public class TaskServiceImpl implements TaskService {
         taskRecordQueryParam.setApp(request.getAppToken());
         taskRecordQueryParam.setStatusList(request.getStatus());
         taskRecordQueryParam.setTaskNos(request.getTaskNos());
-        taskRecordQueryParam.setApp(request.getAppToken());
+        //taskRecordQueryParam.setApp(request.getAppToken());
         return taskRecordQueryParam;
 
     }

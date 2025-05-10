@@ -123,6 +123,9 @@
             <if test="content != null">
                 content=#{content},
             </if>
+            <if test="ethAddress != null">
+                eth_address=#{ethAddress},
+            </if>
             updated_at=#{updatedAt},
         </set>
     </sql>

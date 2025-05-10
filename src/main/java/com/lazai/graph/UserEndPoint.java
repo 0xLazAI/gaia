@@ -8,9 +8,11 @@ import com.lazai.core.common.GraphQLResponse;
 import com.lazai.entity.User;
 import com.lazai.entity.vo.UserVO;
 import com.lazai.enums.MethodTypeEnum;
+import com.lazai.request.BindEthAddressRequest;
 import com.lazai.request.BindTwitterUserInfoRequest;
 import com.lazai.request.BindUserEthRequest;
 import com.lazai.request.UserLoginByTgRequest;
+import com.lazai.utils.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -44,6 +46,15 @@ public class UserEndPoint {
     @MutationMapping("bindTwitterUserInfo")
     public GraphQLResponse<Boolean> bindTwitterUserInfo(@Argument("req") BindTwitterUserInfoRequest request){
         twitterService.bindTwitterUserInfo(request);
+        return GraphQLResponse.success(true);
+    }
+
+    @ResultLog(name = "UserEndPoint.bindEthAddressSimple", methodType = MethodTypeEnum.UPPER)
+    @MutationMapping("bindEthAddressSimple")
+    public GraphQLResponse<Boolean> bindEthAddressSimple(@Argument("req") BindEthAddressRequest request){
+//        User user = JWTUtils.getUser();
+//        request.setUserId(user.getId() + "");
+        userService.bindEthAddressSimple(request);
         return GraphQLResponse.success(true);
     }
 

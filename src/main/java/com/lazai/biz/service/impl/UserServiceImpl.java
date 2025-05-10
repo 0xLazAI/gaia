@@ -2,6 +2,7 @@ package com.lazai.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.lazai.biz.service.TwitterService;
 import com.lazai.biz.service.UserService;
 import com.lazai.entity.User;
 import com.lazai.entity.UserScore;
@@ -179,6 +180,23 @@ public class UserServiceImpl implements UserService {
         if(StringUtils.isBlank(user.getEthAddress())){
             user.setEthAddress(request.getEthAddress());
             userRepository.updateById(user);
+        }
+    }
+
+    /**
+     * @see UserService#bindEthAddressSimple
+     */
+    @Override
+    public void bindEthAddressSimple(BindEthAddressRequest request){
+        if(StringUtils.isBlank(request.getEthAddress())){
+            throw new DomainException("The eth address is blank!", 403);
+        }
+        User user = userRepository.findById(request.getUserId(), false);
+        user.setEthAddress(request.getEthAddress());
+        try{
+            userRepository.updateById(user);
+        }catch (Throwable t){
+            throw new DomainException("The eth address has been used!", 403);
         }
     }
 

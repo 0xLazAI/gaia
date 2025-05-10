@@ -1,6 +1,7 @@
 package com.lazai.biz.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.lazai.request.BindEthAddressRequest;
 import com.lazai.request.BindTwitterUserInfoRequest;
 import okhttp3.Response;
 

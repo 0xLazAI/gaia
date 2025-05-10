@@ -16,6 +16,9 @@ type Mutation{
     bindEthAddress(req: BindEthAddressRequest!): BooleanResponse
 
     claim(req: ClaimRequest!):BooleanResponse
+
+    bindEthAddressSimple(req: BindEthAddressSimpleRequest!): BooleanResponse
+
 }
 
 
@@ -56,12 +59,19 @@ type TaskTemplateUse{
     taskCount: String
     taskType: String
     content: TaskTemplateContent
+    context: TaskTemplateContext
 }
 
 type TaskTemplateContent{
     dailyTimesLimit: Int
     twitterName: String
 }
+
+type TaskTemplateContext{
+    scoreType: String
+    score: String
+}
+
 
 type ScoreInfo{
     createdAt: String
@@ -136,7 +146,7 @@ input BindTwitterUserInfoRequest {
 input taskQueryRequest{
     templateCodes: [String!]
     taskNos: [String!]
-    app: String
+    appToken: String
 }
 
 input BindEthAddressRequest {
@@ -144,6 +154,13 @@ input BindEthAddressRequest {
     ethAddress: String!
 
     signature: String!
+}
+
+input BindEthAddressSimpleRequest {
+    # style id
+    ethAddress: String!
+
+    userId: String!
 }
 
 input ClaimRequest {
