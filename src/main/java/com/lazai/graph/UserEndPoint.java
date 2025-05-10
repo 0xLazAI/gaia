@@ -52,8 +52,8 @@ public class UserEndPoint {
     @ResultLog(name = "UserEndPoint.bindEthAddressSimple", methodType = MethodTypeEnum.UPPER)
     @MutationMapping("bindEthAddressSimple")
     public GraphQLResponse<Boolean> bindEthAddressSimple(@Argument("req") BindEthAddressRequest request){
-//        User user = JWTUtils.getUser();
-//        request.setUserId(user.getId() + "");
+        User user = JWTUtils.getUser();
+        request.setUserId(user.getId() + "");
         userService.bindEthAddressSimple(request);
         return GraphQLResponse.success(true);
     }
