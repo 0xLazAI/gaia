@@ -47,7 +47,7 @@ public class TwitterWebhookController {
         userContent.put("twitterUserInfo", me.getJSONObject("data"));
         user.setContent(JSON.toJSONString(userContent));
         userRepository.updateById(user);
-        response.sendRedirect("https://t.me/alithpointbot/TestCorruptedAlithMission?startapp=jump=mission");
+        response.sendRedirect("https://t.me/CorruptedAlith_bot/mission");
     }
 
 //    @GetMapping
