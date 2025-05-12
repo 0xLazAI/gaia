@@ -25,6 +25,16 @@ public class ScoreAddRequest extends BasicRequest {
 
     private String scoreType;
 
+    private String appToken;
+
+    public String getAppToken() {
+        return appToken;
+    }
+
+    public void setAppToken(String appToken) {
+        this.appToken = appToken;
+    }
+
     public String getScoreType() {
         return scoreType;
     }

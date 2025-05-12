@@ -30,6 +30,7 @@ public class AddScoreActionHandler implements ActionHandler {
         BigInteger score = context.getBigInteger("score");
         String taskNo = context.getString("taskNo");
         ScoreAddRequest scoreAddRequest = new ScoreAddRequest();
+        scoreAddRequest.setAppToken(context.getString("appToken"));
         scoreAddRequest.setScoreType(scoreType);
         scoreAddRequest.setUserId(userId);
         scoreAddRequest.setScore(score);

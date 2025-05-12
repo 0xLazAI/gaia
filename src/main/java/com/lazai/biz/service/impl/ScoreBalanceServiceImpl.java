@@ -68,6 +68,9 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
                 userScore = new UserScore();
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("commonScore", scoreAddRequest.getScore());
+                if(!StringUtils.isBlank(scoreAddRequest.getAppToken())){
+                    jsonObject.put(scoreAddRequest.getAppToken() + "_score", scoreAddRequest.getScore());
+                }
                 jsonObject.put("operator", scoreAddRequest.getOperator());
                 userScore.setContent(jsonObject.toJSONString());
                 userScore.setUserId(userInfo.getId().toString());
@@ -75,6 +78,13 @@ public class ScoreBalanceServiceImpl implements ScoreBalanceService {
             }else{
                 JSONObject jsonObject = JSON.parseObject(userScore.getContent());
                 jsonObject.put("commonScore", (jsonObject.getBigInteger("commonScore")).add(scoreAddRequest.getScore()));
+                if(!StringUtils.isBlank(scoreAddRequest.getAppToken())){
+                   String appTokenKey =  scoreAddRequest.getAppToken() + "_score";
+                   if(!jsonObject.containsKey(appTokenKey)){
+                       jsonObject.put(scoreAddRequest.getAppToken() + "_score", 0);
+                   }
+                   jsonObject.put(appTokenKey, (jsonObject.getBigInteger(appTokenKey)).add(scoreAddRequest.getScore()));
+                }
                 jsonObject.put("operator", scoreAddRequest.getOperator());
                 userScore.setContent(jsonObject.toJSONString());
                 userScoreRepository.updateById(userScore);

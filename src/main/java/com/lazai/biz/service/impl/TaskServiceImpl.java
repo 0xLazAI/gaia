@@ -218,7 +218,9 @@ public class TaskServiceImpl implements TaskService {
                                         taskRecord[0] = taskRecordRepository.selectByTaskNo(request.getTaskNo(), true);
                                         Class<?> clazz = Class.forName(actionSingle.getActionHandler());
                                         actionHandler[0] =  (ActionHandler)applicationContext.getBean(clazz);
-                                        JSONObject triggerResult =  actionHandler[0].handle(JSON.parseObject(taskRecord[0].getContext()));
+                                        JSONObject context = JSON.parseObject(taskRecord[0].getContext());
+                                        context.put("appToken", taskRecord[0].getApp());
+                                        JSONObject triggerResult =  actionHandler[0].handle(context);
                                         if(triggerResult!=null){
                                             JsonUtils.mergeJsonObjects(taskContent, triggerResult);
                                         }
