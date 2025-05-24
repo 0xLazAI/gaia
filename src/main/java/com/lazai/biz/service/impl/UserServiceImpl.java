@@ -5,21 +5,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.lazai.biz.service.TwitterService;
 import com.lazai.biz.service.UserService;
 import com.lazai.entity.User;
+import com.lazai.entity.UserInvites;
 import com.lazai.entity.UserScore;
 import com.lazai.entity.vo.UserVO;
 import com.lazai.exception.DomainException;
+import com.lazai.repostories.UserInvitesRepository;
 import com.lazai.repostories.UserRepository;
 import com.lazai.repostories.UserScoreRepository;
 import com.lazai.request.*;
-import com.lazai.utils.EthereumAuthUtils;
-import com.lazai.utils.JWTUtils;
-import com.lazai.utils.RedisUtils;
-import com.lazai.utils.UrlParserUtils;
+import com.lazai.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,6 +32,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TransactionTemplate transactionTemplateCommon;
+
+    @Autowired
+    private UserInvitesRepository userInvitesRepository;
 
     @Autowired
     private UserScoreRepository userScoreRepository;
@@ -45,7 +52,27 @@ public class UserServiceImpl implements UserService {
             throw new DomainException("no user",404);
         }
         UserScore userScore = userScoreRepository.getByUserId(new BigInteger(id));
-        return toUserVO(userInfo,userScore);
+        String inviteCodeRaw = "invite_code_" + id;
+        String inviteCode = AesUtils.encrypt(inviteCodeRaw);
+        UserVO userVO = toUserVO(userInfo,userScore);
+        userVO.setInvitedCode(inviteCode);
+        List<UserInvites> userInvites = userInvitesRepository.getByInvitingUserId(id);
+        userVO.setInvitesCount(userInvites.size());
+        return userVO;
+    }
+
+    public UserVO getByEthAddress(String address){
+        address = address.toLowerCase();
+        User userInfo =  userRepository.findByEthAddress(address, false);
+        if(userInfo == null){
+            throw new DomainException("no user",404);
+        }
+        UserScore userScore = userScoreRepository.getByUserId(userInfo.getId());
+        String inviteCodeRaw = "invite_code_" + userInfo.getId();
+        String inviteCode = AesUtils.encrypt(inviteCodeRaw);
+        UserVO userVO = toUserVO(userInfo,userScore);
+        userVO.setInvitedCode(inviteCode);
+        return userVO;
     }
 
     /**
@@ -104,20 +131,51 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public JSONObject login(LoginRequest request){
-        User user = userRepository.findByEthAddress(request.getEthAddress(), false);
+        final User[] user = {userRepository.findByEthAddress(request.getEthAddress(), false)};
         JSONObject result = new JSONObject();
-        if(user == null){
-            throw new DomainException("no user",404);
+        if(user[0] == null){
+            user[0] = convertCreateUserRequestToUserEntity(request);
+            user[0].setId(new BigInteger(userRepository.insert(user[0])));
+            String invitedCode = request.getInvitedCode();
+            if(StringUtils.isNotBlank(invitedCode)){
+                transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
+                    String invitingUser = insertInvitesInfo(user[0], invitedCode);
+                    if(StringUtils.isNotBlank(invitingUser)){
+                        user[0] = userRepository.findById(user[0].getId() + "", false);
+                        JSONObject contentObj = JSON.parseObject(user[0].getContent());
+                        contentObj.put("invitedByCode", invitedCode);
+                        contentObj.put("invitedByUser", invitingUser);
+                        user[0].setContent(JSON.toJSONString(contentObj));
+                        userRepository.updateById(user[0]);
+                    }
+                });
+            }
         }
-        result.put("userId", user.getId());
-        String existsToken = JWTUtils.getTokenByUserId(user.getId()+"");
+
+        result.put("userId", user[0].getId());
+        String existsToken = JWTUtils.getTokenByUserId(user[0].getId()+"");
         if(!request.getForce() && !StringUtils.isEmpty(existsToken)){
             result.put("token", existsToken);
         }else {
-            String token = JWTUtils.createToken(user, 3600*24*20);
+            String token = JWTUtils.createToken(user[0], 3600*24*20);
             result.put("token", token);
         }
         return result;
+    }
+
+    private String insertInvitesInfo(User user, String invitedCode){
+        String invitedCodeDecrypt = AesUtils.decrypt(invitedCode);
+        if(invitedCodeDecrypt.startsWith("invite_code_")){
+            String invitingUserId = invitedCodeDecrypt.split("_")[2];
+            UserInvites userInvites = new UserInvites();
+            userInvites.setInvitedUser(user.getId() + "");
+            userInvites.setInvitingUser(invitingUserId);
+            userInvites.setContent("{}");
+            userInvites.setStatus("ACTIVE");
+            userInvitesRepository.insert(userInvites);
+            return invitingUserId;
+        }
+        return null;
     }
 
 
@@ -138,18 +196,32 @@ public class UserServiceImpl implements UserService {
         if(!verified){
             throw new DomainException("eth address verify failed",403);
         }
-        User user = userRepository.findByEthAddress(request.getEthAddress(), false);
+        final User[] user = {userRepository.findByEthAddress(request.getEthAddress(), false)};
         JSONObject result = new JSONObject();
-        if(user == null){
-            user = convertCreateUserRequestToUserEntity(request);
-            user.setId(new BigInteger(userRepository.insert(user)));
+        if(user[0] == null){
+            user[0] = convertCreateUserRequestToUserEntity(request);
+            user[0].setId(new BigInteger(userRepository.insert(user[0])));
+            String invitedCode = request.getInvitedCode();
+            if(StringUtils.isNotBlank(invitedCode)){
+                transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
+                    String invitingUser = insertInvitesInfo(user[0], invitedCode);
+                    if(StringUtils.isNotBlank(invitingUser)){
+                        user[0] = userRepository.findById(user[0].getId() + "", false);
+                        JSONObject contentObj = JSON.parseObject(user[0].getContent());
+                        contentObj.put("invitedByCode", invitedCode);
+                        contentObj.put("invitedByUser", invitingUser);
+                        user[0].setContent(JSON.toJSONString(contentObj));
+                        userRepository.updateById(user[0]);
+                    }
+                });
+            }
         }
-        result.put("userId", user.getId());
-        String existsToken = JWTUtils.getTokenByUserId(user.getId()+"");
+        result.put("userId", user[0].getId());
+        String existsToken = JWTUtils.getTokenByUserId(user[0].getId()+"");
         if(!request.getForce() && !StringUtils.isEmpty(existsToken)){
             result.put("token", existsToken);
         }else {
-            String token = JWTUtils.createToken(user, 3600*24*20);
+            String token = JWTUtils.createToken(user[0], 3600*24*20);
             result.put("token", token);
         }
         return result;
@@ -200,6 +272,27 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public void bindUserInvitedCode(BindInvitingCodeRequest request){
+        User user = userRepository.findById(request.getUserId(), false);
+        if(user == null){
+            throw new DomainException("user not fund", 404);
+        }
+        String invitedCodeDecrypt = AesUtils.decrypt(request.getInvitedCode());
+        if(StringUtils.isBlank(invitedCodeDecrypt)){
+            throw new DomainException("invited code error", 403);
+        }
+        transactionTemplateCommon.executeWithoutResult(transactionStatus -> {
+            String invitingUserId = insertInvitesInfo(user, request.getInvitedCode());
+            if(StringUtils.isNotBlank(invitingUserId)){
+                JSONObject contentObj = JSON.parseObject(user.getContent());
+                contentObj.put("invitedByCode", request.getInvitedCode());
+                contentObj.put("invitedByUser", invitingUserId);
+                user.setContent(JSON.toJSONString(contentObj));
+                userRepository.updateById(user);
+            }
+        });
+    }
+
     /**
      * @see UserService#getNonce
      */
@@ -218,13 +311,19 @@ public class UserServiceImpl implements UserService {
      * @see UserService#updateById
      */
     @Override
-    public Integer updateById(UserCreateRequest request){
-        User existsUser = userRepository.findByEthAddress(request.getEthAddress(),false);
+    public Integer updateById(UserUpdateRequest request){
+        User existsUser = userRepository.findById(request.getId(),false);
         if(existsUser == null){
             throw new DomainException("no user",404);
         }
-        User user = convertCreateUserRequestToUserEntity(request);
+        JSONObject existsContent = JSON.parseObject(existsUser.getContent());
+
+        User user = convertUpdateUserRequestToUserEntity(request);
         user.setId(existsUser.getId());
+        if(request.getContent() != null){
+            JsonUtils.mergeJsonObjects(existsContent, request.getContent());
+            user.setContent(JSON.toJSONString(existsContent));
+        }
         return userRepository.updateById(user);
     }
 
@@ -260,6 +359,29 @@ public class UserServiceImpl implements UserService {
         user.setEthAddress(request.getEthAddress());
         user.setTgId(request.getTgId());
         user.setxId(request.getxId());
+        user.setName(request.getName());
+        return user;
+    }
+
+    /**
+     * convert to User
+     * @param request
+     * @return
+     */
+    public static User convertUpdateUserRequestToUserEntity(UserCreateRequest request){
+        User user = new User();
+        if(StringUtils.isNotBlank(request.getName())){
+            user.setName(request.getName());
+        }
+//        if(StringUtils.isNotBlank(request.getEthAddress())){
+//            user.setEthAddress(request.getEthAddress());
+//        }
+        if(StringUtils.isNotBlank(request.getTgId())){
+            user.setTgId(request.getTgId());
+        }
+        if(StringUtils.isNotBlank(request.getxId())){
+            user.setxId(request.getxId());
+        }
         return user;
     }
 
@@ -280,6 +402,9 @@ public class UserServiceImpl implements UserService {
         userVO.setCreatedAt(user.getCreatedAt());
         userVO.setUpdatedAt(user.getUpdatedAt());
         userVO.setContent(user.getContent());
+        if(StringUtils.isNotBlank(user.getContent())){
+            userVO.setContentObj(JSON.parseObject(user.getContent()));
+        }
         if(userScore != null){
             userVO.setScoreInfo(JSON.parseObject(userScore.getContent()));
         }

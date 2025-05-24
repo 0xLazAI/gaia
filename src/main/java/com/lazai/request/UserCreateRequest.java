@@ -1,5 +1,6 @@
 package com.lazai.request;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.lazai.core.common.BasicRequest;
 import com.lazai.core.common.ToLowerCaseDeserializer;
@@ -16,6 +17,16 @@ public class UserCreateRequest extends BasicRequest {
     private String tgId;
 
     private String xId;
+
+    private JSONObject content;
+
+    public JSONObject getContent() {
+        return content;
+    }
+
+    public void setContent(JSONObject content) {
+        this.content = content;
+    }
 
     public String getName() {
         return name;

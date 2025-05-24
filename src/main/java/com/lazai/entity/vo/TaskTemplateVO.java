@@ -11,6 +11,8 @@ public class TaskTemplateVO implements Serializable {
 
     private String taskName;
 
+    private String desc;
+
     private String taskTemplateId;
 
     private Integer taskFinishCount;
@@ -22,6 +24,14 @@ public class TaskTemplateVO implements Serializable {
     private JSONObject content;
 
     private JSONObject context;
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
     public JSONObject getContext() {
         return context;

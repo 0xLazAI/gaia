@@ -365,6 +365,11 @@ public class TaskServiceImpl implements TaskService {
                            taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
                        }
                    }
+                }else{
+                    taskTemplateVOSingle.setTaskCount(taskTemplateVOSingle.getTaskCount()+1);
+                    if(TaskStatusEnum.FINISH.value().equals(taskRecord.getStatus())){
+                        taskTemplateVOSingle.setTaskFinishCount(taskTemplateVOSingle.getTaskFinishCount()+1);
+                    }
                 }
             }
 
@@ -393,6 +398,7 @@ public class TaskServiceImpl implements TaskService {
                 taskTemplateVOSingleContent.put("dailyTimesLimit", templateContent.getJSONObject("context").getInteger("dailyTimes"));
             }
         }
+        taskTemplateVO.setDesc(templateContent.getString("desc"));
         if(StringUtils.isNotBlank(templateContent.getJSONObject("context").getString("twitterName"))){
             taskTemplateVOSingleContent.put("twitterName", templateContent.getJSONObject("context").getString("twitterName"));
         }

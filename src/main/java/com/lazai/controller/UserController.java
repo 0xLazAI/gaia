@@ -4,10 +4,7 @@ import com.lazai.annotation.ResultLog;
 import com.lazai.biz.service.UserService;
 import com.lazai.core.common.JsonApiResponse;
 import com.lazai.enums.MethodTypeEnum;
-import com.lazai.request.BindUserEthRequest;
-import com.lazai.request.LoginRequest;
-import com.lazai.request.UserCreateRequest;
-import com.lazai.request.UserLoginByTgRequest;
+import com.lazai.request.*;
 import com.lazai.utils.JWTUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,10 +63,23 @@ public class UserController {
         return JsonApiResponse.success(true);
     }
 
+    @PostMapping("/bindInvitedCode")
+    @ResultLog(name = "UserController.bindInvitedCode", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> bindInvitedCode(@RequestBody BindInvitingCodeRequest bizRequest, HttpServletRequest request){
+        userService.bindUserInvitedCode(bizRequest);
+        return JsonApiResponse.success(true);
+    }
+
     @GetMapping("/decodeToken")
     @ResultLog(name = "UserController.decodeToken", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> decodeToken(@RequestParam String token, HttpServletRequest request){
         return JsonApiResponse.success(JWTUtils.getClaimsFromToken(token));
+    }
+
+    @GetMapping("/isLogin")
+    @ResultLog(name = "UserController.isLogin", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> isLogin(HttpServletRequest request){
+        return JsonApiResponse.success(JWTUtils.getUser());
     }
 
     @GetMapping("/getNonce")
@@ -85,9 +95,15 @@ public class UserController {
         return JsonApiResponse.success(userService.getById(id));
     }
 
+    @GetMapping("/getByEthAddress")
+    @ResultLog(name = "UserController.getByEthAddress", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> getByEthAddress(@RequestParam String address, HttpServletRequest request){
+        return JsonApiResponse.success(userService.getByEthAddress(address));
+    }
+
     @PostMapping("/updateUserById")
     @ResultLog(name = "UserController.updateUserById", methodType = MethodTypeEnum.UPPER)
-    public JsonApiResponse<Object> updateUserById(@RequestBody UserCreateRequest bizRequest, HttpServletRequest request){
+    public JsonApiResponse<Object> updateUserById(@RequestBody UserUpdateRequest bizRequest, HttpServletRequest request){
         return JsonApiResponse.success(userService.updateById(bizRequest));
     }
 

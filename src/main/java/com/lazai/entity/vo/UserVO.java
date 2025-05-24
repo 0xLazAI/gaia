@@ -21,7 +21,34 @@ public class UserVO implements Serializable {
     private Date createdAt;
     private Date updatedAt;
     private String content;
+    private JSONObject contentObj;
     private JSONObject scoreInfo;
+    private String invitedCode;
+    private Integer invitesCount;
+
+    public Integer getInvitesCount() {
+        return invitesCount;
+    }
+
+    public void setInvitesCount(Integer invitesCount) {
+        this.invitesCount = invitesCount;
+    }
+
+    public String getInvitedCode() {
+        return invitedCode;
+    }
+
+    public void setInvitedCode(String invitedCode) {
+        this.invitedCode = invitedCode;
+    }
+
+    public JSONObject getContentObj() {
+        return contentObj;
+    }
+
+    public void setContentObj(JSONObject contentObj) {
+        this.contentObj = contentObj;
+    }
 
     public BigInteger getId() {
         return id;

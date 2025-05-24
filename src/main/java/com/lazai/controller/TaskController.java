@@ -69,6 +69,13 @@ public class TaskController {
         return JsonApiResponse.success(true);
     }
 
+    @PostMapping("/claimServer")
+    @ResultLog(name = "TaskController.claimServer", methodType = MethodTypeEnum.UPPER)
+    public JsonApiResponse<Object> claimServer(@RequestBody TaskCreateRequest taskCreateRequest, HttpServletRequest request){
+        taskService.claimTask(taskCreateRequest);
+        return JsonApiResponse.success(true);
+    }
+
     @GetMapping("/userTaskRecords")
     @ResultLog(name = "TestController.userTaskRecords", methodType = MethodTypeEnum.UPPER)
     public JsonApiResponse<Object> userTaskRecords(@ModelAttribute TaskQueryRequest bizRequest, HttpServletRequest request){

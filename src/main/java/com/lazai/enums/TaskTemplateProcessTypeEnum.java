@@ -5,6 +5,7 @@ public enum TaskTemplateProcessTypeEnum {
     ONCE("ONCE", ""),
     DAILY("DAILY", ""),
     DAILY_TIMES("DAILY_TIMES", ""),
+    COMMON("COMMON", ""),
     ;
 
     private final String value;

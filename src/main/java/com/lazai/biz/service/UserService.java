@@ -17,6 +17,15 @@ public interface UserService {
      */
     UserVO getById(String id);
 
+
+    /**
+     *
+     * @param address
+     * @return
+     */
+    UserVO getByEthAddress(String address);
+
+
     /**
      * create user
      * @param request
@@ -50,7 +59,7 @@ public interface UserService {
      * @param request
      * @return
      */
-    Integer updateById(UserCreateRequest request);
+    Integer updateById(UserUpdateRequest request);
 
     /**
      * find user by x id
@@ -84,6 +93,9 @@ public interface UserService {
      * @param request
      */
     void bindEthAddressSimple(BindEthAddressRequest request);
+
+
+    void bindUserInvitedCode(BindInvitingCodeRequest request);
 
     /**
      * get nonce
